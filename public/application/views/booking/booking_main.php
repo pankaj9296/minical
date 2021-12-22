@@ -16,8 +16,8 @@
     <div class="pull-left h4">
         <strong><?php echo l('filters'); ?></strong>
     </div>
-    <div class="col-sm-2 col-md-2 col-lg-2 col-xs-2">
-        <select name="room-type" class="form-control" onchange="filter_data()">
+    <div class="col-sm-3 col-md-2 col-lg-2 col-xs-12">
+        <select name="room-type" class="form-control" onchange="filter_data()" id="filter-sapce">
             <option value=""><?php echo l('all_room_types'); ?></option>
             <?php
                 foreach($room_types as $room_type)
@@ -26,10 +26,34 @@
                 }
             ?>
         </select>
+    </div> 
+
+     <div class="col-sm-2 col-md-2 col-lg-2 col-xs-2">
+        <select name="room-floor" class="form-control col-sm-4 col-md-4 col-lg-4 col-xs-4" onchange="filter_data()">
+            <option value=""><?php echo l('all_floors'); ?></option>    
+            <?php
+                foreach($room_floor as $key => $floors)
+                {
+                    echo "<option value='".$floors['id']."'>".$floors['floor_name']."</option>";
+                }
+            ?>
+        </select>
+    </div>
+        
+    <div class="col-sm-2 col-md-2 col-lg-2 col-xs-2">
+        <select name="room-location" class="form-control col-sm-4 col-md-4 col-lg-4 col-xs-4" onchange="filter_data()">
+            <option value=""><?php echo l('all_locations'); ?></option>    
+            <?php
+                foreach($room_location as $key => $locations)
+                {
+                    echo "<option value='".$locations['id']."'>".$locations['location_name']."</option>";
+                }
+            ?>
+        </select>
     </div>    
 
-    <div class="col-sm-2 col-md-2 col-lg-2 col-xs-2">
-        <select name="reservation-type" class="form-control col-sm-4 col-md-4 col-lg-4 col-xs-4" onchange="filter_data()">
+    <div class="col-sm-3 col-md-2 col-lg-2 col-xs-12">
+        <select name="reservation-type" class="form-control col-sm-4 col-md-4 col-lg-4 col-xs-4" onchange="filter_data()" id="filter-sapce">
             <option value=""><?php echo l('all_bookings_except_cancelled'); ?></option>
             <option value="-1"><?php echo l('all_bookings'); ?></option>
             <option value="0"><?php echo l('reservation'); ?></option>
@@ -41,8 +65,8 @@
         </select>
     </div>
 
-    <div class="col-sm-2 col-md-2 col-lg-2 col-xs-2">
-        <select name="booking-source" class="form-control" onchange="filter_data()">
+    <div class="col-sm-3 col-md-2 col-lg-2 col-xs-12">
+        <select name="booking-source" class="form-control" onchange="filter_data()" id="new-select">
             <option value=""><?php echo l('All Booking Sources'); ?></option>
             <?php
                 foreach($booking_sources as $booking_source)
@@ -315,7 +339,9 @@
 
 
 
-                                <?php if($_SERVER['HTTP_HOST'] == "app.minical.io" || $_SERVER['HTTP_HOST'] == "demo.minical.io"){?>
+                                <?php
+                                $is_hosted_prod_service = getenv('IS_HOSTED_PROD_SERVICE');
+                                if($is_hosted_prod_service || $_SERVER['HTTP_HOST'] == "app.minical.io" || $_SERVER['HTTP_HOST'] == "demo.minical.io"){?>
                                     <br/><br/>
                                     <div class="form-group" >
                                     <label for="property_type" class="col-sm-3 control-label">

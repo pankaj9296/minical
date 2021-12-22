@@ -17,6 +17,7 @@ class MY_Controller extends CI_Controller {
     public $module_menus;
     public $current_payment_gateway;
     public $is_super_admin;
+    public $all_active_modules;
 
 
     public function __construct()
@@ -25,7 +26,7 @@ class MY_Controller extends CI_Controller {
         $this->ci =& get_instance();
         
         $this->profiler_is_on = false;
-        if($this->ci->input->get('dev_mode') == "b1m8V0I5ZT"){
+        if(isset($_GET['dev_mode']) && $_GET['dev_mode'] == getenv('DEVMODE_PASS')){
             $this->ci->output->enable_profiler(TRUE);
             $this->profiler_is_on = true;
         }
@@ -47,13 +48,15 @@ class MY_Controller extends CI_Controller {
         $this->language = $this->lang->language;
         $this->load->vars(array("l" => (object)$this->lang->language));
 
+        $this->image_url = "https://".getenv("AWS_S3_BUCKET").".s3.amazonaws.com/";
+
         $this->check_login();
 
         $all_active_modules = array();
         $modules_path = $this->config->item('module_location'); 
         $modules = scandir($modules_path);
 
-        $extensions = $this->session->userdata('all_active_modules');
+        // $extensions = $this->session->userdata('all_active_modules');
         
         foreach($modules as $module)
         {
@@ -88,7 +91,9 @@ class MY_Controller extends CI_Controller {
             }
         }
 
-        $this->session->set_userdata('all_active_modules', $all_active_modules);
+        $this->all_active_modules = $all_active_modules;
+
+        // $this->session->set_userdata('all_active_modules', $all_active_modules);
 
         $this->module_assets_files = array();
         $modules_path = $this->config->item('module_location');     
@@ -100,17 +105,36 @@ class MY_Controller extends CI_Controller {
             $company_id = $this->company_id;
         }
 
+        $all_modules = $get_active_modules = array();
+
         foreach($modules as $module)
         {
             if($module === '.' || $module === '..') continue;
             if(is_dir($modules_path) . '/' . $module)
             {
+                $all_modules[] = $module;
+            }
+        }
+
+        if($all_modules){
+            $get_active_modules = $this->permission->is_extension_active($all_modules, $company_id, true);
+        }
+
+        $this->is_channex_pci_enabled = false;
+
+        if($get_active_modules){
+            foreach ($get_active_modules as $key => $value) {
+
+                if($value['extension_name'] == 'channexpci_integration'){
+                    $this->is_channex_pci_enabled = true;
+                }
+
                 $config = array();
-                $files_path = $modules_path . $module . '/config/autoload.php';
-                if(file_exists($files_path) && $this->permission->is_extension_active($module, $company_id))
+                $files_path = $modules_path . $value['extension_name'] . '/config/autoload.php';
+                if(file_exists($files_path))
                 {
                     require($files_path);
-                    $this->module_assets_files[$module] = $config;
+                    $this->module_assets_files[$value['extension_name']] = $config;
                 }
                 else
                 {
@@ -120,20 +144,16 @@ class MY_Controller extends CI_Controller {
         }
 
         $this->module_menus = array();
-        $modules_path = $this->config->item('module_location');     
-        $modules = scandir($modules_path);
 
-        foreach($modules as $module)
-        {
-            if($module === '.' || $module === '..') continue;
-            if(is_dir($modules_path) . '/' . $module)
-            {
+        if($get_active_modules){
+            foreach ($get_active_modules as $key => $value) {
+
                 $module_menu = array();
-                $module_file = $modules_path . $module . '/config/menu.php';
-                if(file_exists($module_file) && $this->permission->is_extension_active($module, $this->company_id))
+                $module_file = $modules_path . $value['extension_name'] . '/config/menu.php';
+                if(file_exists($module_file))
                 {
                     require($module_file);
-                    $this->module_menus[$module] = $module_menu;
+                    $this->module_menus[$value['extension_name']] = $module_menu;
                 }
                 else
                 {
@@ -144,18 +164,20 @@ class MY_Controller extends CI_Controller {
         
         require APPPATH."config/routes.php";
 
-        foreach ($module_permission as $key => $module) {
-            if(
-                strpos($key, 'cron') && 
-                (
-                    isset($this->company_id) && 
-                    $this->company_id != '' && 
-                    $this->router->fetch_module() != '' && 
-                    !strpos($module, $this->router->fetch_module()) && 
-                    !($this->permission->is_extension_active($this->router->fetch_module(), $this->company_id))
-                )
-            ){
-                show_404();
+        if (isset($module_permission) && count($module_permission) > 0) {
+            foreach ($module_permission as $key => $module) {
+                if(
+                    strpos($key, 'cron') &&
+                    (
+                        isset($this->company_id) &&
+                        $this->company_id != '' &&
+                        $this->router->fetch_module() != '' &&
+                        !strpos($module, $this->router->fetch_module()) &&
+                        !($this->permission->is_extension_active($this->router->fetch_module(), $this->company_id))
+                    )
+                ){
+                    show_404();
+                }
             }
         }
 
@@ -163,6 +185,12 @@ class MY_Controller extends CI_Controller {
             $company_id = $this->uri->segment(3);
         } else {
             $company_id = $this->company_id;
+        }
+
+        if($company_id){
+            $this->session->set_userdata('anonymous_company_id', $company_id);
+        } else {
+            $company_id = $this->session->userdata('anonymous_company_id');
         }
 
         $active_extensions = $this->Extension_model->get_active_extensions($company_id);
@@ -281,15 +309,13 @@ class MY_Controller extends CI_Controller {
             $this->selected_payment_gateway = $company['selected_payment_gateway'];
             $this->booking_cancelled_with_balance = $company['booking_cancelled_with_balance'];
 
-            $user = $this->User_model->get_user_by_id($this->user_id, FALSE);
+            $user = $this->User_model->get_user_by_id($this->user_id);
             $this->user_email = $user['email'];
             $this->company_is_tos_agreed = ($user['tos_agreed_date'] >= TOS_PUBLISH_DATE);
             $this->is_overview_calendar = false; // $user['is_overview_calendar'];
 
             $this->enable_new_calendar = $company['enable_new_calendar'];
             $this->enable_hourly_booking = $this->enable_new_calendar ? $company['enable_hourly_booking'] : false;
-
-            $this->image_url = "https://".getenv("AWS_S3_BUCKET").".s3.amazonaws.com/";
 
             $this->first_name = $user['first_name'];
             $this->last_name = $user['last_name'];
@@ -298,6 +324,14 @@ class MY_Controller extends CI_Controller {
 
             $admin_user_ids = $this->Whitelabel_partner_model->get_partner_detail();
             $this->is_super_admin = (($user && isset($user['email']) && $user['email'] == SUPER_ADMIN) || ($admin_user_ids && isset($admin_user_ids['admin_user_id']) && $this->user_id == $admin_user_ids['admin_user_id']));
+
+            //if($_SERVER['HTTP_HOST'] != "app.minical.io" || $_SERVER['HTTP_HOST'] != "demo.minical.io"){
+                $this->vendor_id = $admin_user_ids['partner_id'] ? $admin_user_ids['partner_id'] : $this->company_data['partner_id'];
+
+                $this->user_permission = ($user && isset($user['permission']) && $user['permission']) ? $user['permission'] : '';
+            //}
+
+            // $this->user_permission = ($user && isset($user['permission']) && $user['permission']) ? $user['permission'] : '';
 
             if($this->is_super_admin){
                 $get_active_extensions = $this->Extension_model->get_active_extensions($this->company_id, 'reseller_package', false);
@@ -337,13 +371,15 @@ class MY_Controller extends CI_Controller {
             }
 
             $host_name = $_SERVER['HTTP_HOST'];
-            if ((!$whitelabelinfo && $this->company_data['partner_id']) || ($whitelabelinfo && ($host_name ==  'http://'. $_SERVER['HTTP_HOST']) && isset($whitelabelinfo['id']) && $whitelabelinfo['id'] != $this->company_data['partner_id'])) {
+            $protocol = $this->config->item('server_protocol');
+            $is_hosted_prod_service = getenv('IS_HOSTED_PROD_SERVICE');
+            if ((!$whitelabelinfo && $this->company_data['partner_id']) || ($whitelabelinfo && ($is_hosted_prod_service || $host_name ==  'app.minical.io' || $host_name ==  'demo.minical.io') && isset($whitelabelinfo['id']) && $whitelabelinfo['id'] != $this->company_data['partner_id'])) {
                 $white_label_detail = $this->Whitelabel_partner_model->get_partners(array('id' => $this->company_data['partner_id']));
                 if($white_label_detail && isset($white_label_detail[0])) {
                     $this->session->set_userdata('white_label_information', $white_label_detail[0]);
                 }
             }
-            
+
             if(
                 $this->company_feature_limit == 1 && 
                 $this->company_subscription_state != 'trialing' &&
@@ -382,6 +418,7 @@ class MY_Controller extends CI_Controller {
         }
         else
         {
+            $this->enable_hourly_booking =  false;
             // if user is not logged-in, but the controller & function combination is publicly accessible
 
             if ($this->permission->is_function_public($this->controller_name, $this->function_name)) 

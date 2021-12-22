@@ -160,13 +160,13 @@ class Auth extends MY_Controller
             }
 
             $data['use_recaptcha'] = $this->config->item('use_recaptcha', 'tank_auth');
-            if ($this->tank_auth->is_max_login_attempts_exceeded($login)) {
-                if ($data['use_recaptcha']) {
-                    $this->form_validation->set_rules('recaptcha_response_field', 'Confirmation Code', 'trim|xss_clean|required|callback__check_recaptcha');
-                } else {
-                    $this->form_validation->set_rules('captcha', 'Confirmation Code', 'trim|xss_clean|required|callback__check_captcha');
-                }
-            }
+//            if ($this->tank_auth->is_max_login_attempts_exceeded($login)) {
+//                if ($data['use_recaptcha']) {
+//                    $this->form_validation->set_rules('recaptcha_response_field', 'Confirmation Code', 'trim|xss_clean|required|callback__check_recaptcha');
+//                } else {
+//                    $this->form_validation->set_rules('captcha', 'Confirmation Code', 'trim|xss_clean|required|callback__check_captcha');
+//                }
+//            }
             $data['errors'] = array();
 
             $this->form_validation->set_value('login');
@@ -224,21 +224,27 @@ class Auth extends MY_Controller
                 }
                 else 
                 {
-                    foreach ($errors as $k => $v) {
-                        $data['errors'][$k] = $this->lang->line($v);
+                    if(isset($_POST['submit'])){
+                        foreach ($errors as $k => $v) {
+                            $data['errors'][$k] = $this->lang->line($v);
+                        }
+
+                        if(!$this->user_model->get_user_by_email($email)){
+                            $data['errors']['incorrect_email'] = 'Email does not exists';
+                        }
                     }
                 }
             }
 
             $data['show_captcha'] = false;
-            if ($this->tank_auth->is_max_login_attempts_exceeded($login)) {
-                $data['show_captcha'] = true;
-                if ($data['use_recaptcha']) {
-                    $data['recaptcha_html'] = $this->_create_recaptcha();
-                } else {
-                    $data['captcha_html'] = $this->_create_captcha();
-                }
-            }
+//            if ($this->tank_auth->is_max_login_attempts_exceeded($login)) {
+//                $data['show_captcha'] = true;
+//                if ($data['use_recaptcha']) {
+//                    $data['recaptcha_html'] = $this->_create_recaptcha();
+//                } else {
+//                    $data['captcha_html'] = $this->_create_captcha();
+//                }
+//            }
 
             $data['main_content'] = 'auth/login_form';
 
@@ -535,7 +541,13 @@ class Auth extends MY_Controller
             }                
             else{
                 //print_r(validation_errors());
-                echo strip_tags(form_error('email'));
+                $is_hosted_prod_service = getenv('IS_HOSTED_PROD_SERVICE');
+                if($is_hosted_prod_service || $_SERVER['HTTP_HOST'] == "app.minical.io" || $_SERVER['HTTP_HOST'] == "demo.minical.io"){
+                    echo 'The Email field must contain a valid email address.';
+                } else {
+                    echo strip_tags(form_error('email'));
+                }
+                
             }
         }
 
@@ -840,6 +852,11 @@ class Auth extends MY_Controller
         if(isset($data['email']) && $data['email'] == SUPER_ADMIN){
             $this->User_model->add_user_permission($company_id, $data['user_id'], 'is_admin');
         }
+
+        if($this->User_model->get_users_count() == 1 && $data['email'] != SUPER_ADMIN){
+            $this->User_model->add_user_permission($company_id, $data['user_id'], 'is_admin');
+        }
+
          // support@minical.io will have admin permission
         
         // check for whitelabel partner
@@ -1389,6 +1406,28 @@ class Auth extends MY_Controller
             }
         }
 
+        if(isset($_POST['submit'])){
+
+            if($this->input->post('new_password') == ''){
+                $data['errors']['blank_new_password'] = 'The New Password field is required.';
+            }
+
+            if($this->input->post('new_password') != '' && strlen($this->input->post('new_password')) < 4){
+                $data['errors']['short_new_password'] = 'The New Password field must be at least 4 characters in length.';
+            }
+
+            if($this->input->post('confirm_new_password') == ''){
+                $data['errors']['blank_confirm_new_password'] = 'The Confirm new Password field is required.';
+            }
+
+            if($this->input->post('new_password') != $this->input->post('confirm_new_password')){
+                $data['errors']['password_not_match'] = 'The Confirm new Password field does not match the New Password field.';
+            }
+            if ($this->input->post('new_password') != '' && preg_match('/[^a-zA-Z\d]/', $this->input->post('new_password'))) {
+                $data['errors']['password_contains_special_characters'] = 'The New Password field may only contain alpha-numeric characters, underscores, and dashes.';
+            }
+        }
+
         $data['js_files'] = array(
             base_url().auto_version('js/login.js')
         );
@@ -1453,6 +1492,28 @@ class Auth extends MY_Controller
 
             if (!$this->tank_auth->can_reset_password($user_id, $new_pass_key)) {
                 $this->_show_message($this->lang->line('auth_message_new_employee_failed'));
+            }
+        }
+
+        if(isset($_POST['submit'])){
+
+            if($this->input->post('new_password') == ''){
+                $data['errors']['blank_new_password'] = 'The New Password field is required.';
+            }
+
+            if($this->input->post('new_password') != '' && strlen($this->input->post('new_password')) < 4){
+                $data['errors']['short_new_password'] = 'The New Password field must be at least 4 characters in length.';
+            }
+
+            if($this->input->post('confirm_new_password') == ''){
+                $data['errors']['blank_confirm_new_password'] = 'The Confirm new Password field is required.';
+            }
+
+            if($this->input->post('new_password') != $this->input->post('confirm_new_password')){
+                $data['errors']['password_not_match'] = 'The Confirm new Password field does not match the New Password field.';
+            }
+            if ($this->input->post('new_password') != '' && preg_match('/[^a-zA-Z\d]/', $this->input->post('new_password'))) {
+                $data['errors']['password_contains_special_characters'] = 'The New Password field may only contain alpha-numeric characters, underscores, and dashes.';
             }
         }
 
@@ -1776,7 +1837,8 @@ class Auth extends MY_Controller
 
         ///property build logic
          $data_build = $company_data = array();
-        if($_SERVER['HTTP_HOST'] == "app.minical.io" || $_SERVER['HTTP_HOST'] == "demo.minical.io"){
+        $is_hosted_prod_service = getenv('IS_HOSTED_PROD_SERVICE');
+        if($is_hosted_prod_service || $_SERVER['HTTP_HOST'] == "app.minical.io" || $_SERVER['HTTP_HOST'] == "demo.minical.io"){
          
             $property_data = $this->Company_model->get_property_build($data['property_type']);
             $feature_setting = json_decode($property_data['setting_json'], true);
@@ -1792,7 +1854,7 @@ class Auth extends MY_Controller
            
         }
 
-        $extensions = $this->session->userdata('all_active_modules');
+        $extensions = $this->all_active_modules;
 
         $data_build['company_id'] = $this->company_id;
         if(isset($dependencies) && count($dependencies) > 0){

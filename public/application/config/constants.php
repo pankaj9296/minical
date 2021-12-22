@@ -179,6 +179,7 @@ define('CAPTURED_PAYMENT', '9');
 define('ADD_FOLIO', '10');
 define('UPDATE_FOLIO', '11');
 define('DELETE_FOLIO', '12');
+define('VOID_PAYMENT', '13');
 
 /*
 |--------------------------------------------------------------------------
@@ -217,6 +218,7 @@ define('GALLERY_IMAGE_TYPE_ID',				'2');
 define('SLIDE_IMAGE_TYPE_ID', 				'3');
 define('RATE_PLAN_IMAGE_TYPE_ID', 			'4');
 define('ROOM_TYPE_IMAGE_TYPE_ID', 			'5');
+define('VENDOR_LOGO_IMAGE_TYPE_ID', 	    '6');
 
 
 /*

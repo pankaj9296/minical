@@ -26,10 +26,17 @@ class Company_model extends CI_Model {
 		}
 	}
     
-    function get_all_companies()
+    function get_all_companies($is_ota_connected = false)
 	{
-		$this->db->select('c.company_id');
+		$this->db->select('c.company_id, c.name');
 		$this->db->from('company as c');
+
+		if($is_ota_connected){
+			$this->db->join('ota_x_company as oxc','oxc.company_id=c.company_id','left');
+			$this->db->where('oxc.ota_manager_id IS NOT NULL');
+		}
+		
+		$this->db->where('c.is_deleted', 0);
 		$this->db->group_by('c.company_id');
         
 		$query = $this->db->get();
@@ -40,6 +47,34 @@ class Company_model extends CI_Model {
 		}
         
 		return NULL;
+	}
+
+	function get_ota_x_company_data($company_ids)
+	{
+		$this->db->from('ota_x_company as oxc');
+		$this->db->where_in('oxc.company_id', $company_ids);
+        
+		$query = $this->db->get();
+        
+		if($query->num_rows() >= 1)
+		{
+			return $query->result_array();
+		}
+        
+		return NULL;
+	}
+
+	function set_pricing_mode_rate_plan($data){
+
+		$update_data = array('rate_update_type' => $data['rate_update_type']);
+
+		$this->db->where('company_id', $data['company_id']);
+		$this->db->where('ota_x_company_id', $data['ota_x_company_id']);
+		$this->db->update("ota_rate_plans", $update_data);
+
+		$this->db->where('company_id', $data['company_id']);
+		$this->db->where('ota_x_company_id', $data['ota_x_company_id']);
+		$this->db->update("ota_x_company", array('rate_update_type' => null));
 	}
     
     function get_data_of_companies()
@@ -1049,6 +1084,52 @@ class Company_model extends CI_Model {
 
           return $que->row_array();
     } 
+
+    function get_company_detail($company_id){
+    	$this->db->where('company_id', $company_id);
+		$query = $this->db->get('company');		
+		
+		if ($query->num_rows >= 1)
+		{
+			$result = $query->result_array();
+			return $result[0];
+		}
+		
+		return NULL;
+    }
+
+    function get_company_data($company_ids){
+    	$this->db->select('company_id, name');
+		$this->db->from('company');
+
+		$this->db->where_in('company_id', $company_ids);
+		
+		$query = $this->db->get();
+		
+		if ($query->num_rows >= 1)
+		{
+			return $result = $query->result_array();
+		}
+		
+		return NULL;
+    }
+
+    function get_partner_company_data($user_id){
+    	$this->db->select('company_id, name');
+		$this->db->from('company');
+
+		$this->db->where('partner_id', $user_id);
+		$this->db->where('is_deleted', 0);
+		
+		$query = $this->db->get();
+		
+		if ($query->num_rows >= 1)
+		{
+			return $result = $query->result_array();
+		}
+		
+		return NULL;
+    }
 }
 
 

@@ -530,7 +530,7 @@ var bookingModalInvoker = function ($) {
 
                 .append(
                     $('<div/>', {
-                        class: 'form-group col-sm-3'
+                        class: 'form-group col-sm-3 width-fix-wep'
                     })
                         .append(
                             $('<label/>')
@@ -895,7 +895,7 @@ var bookingModalInvoker = function ($) {
                             // )
                             .append(
                                 $("<li/>", {
-                                    style: isTokenizationEnabled == 1 && innGrid.featureSettings.selectedPaymentGateway ? "" : "display: none;"
+                                    // style: isTokenizationEnabled == 1 && innGrid.featureSettings.selectedPaymentGateway ? "" : "display: none;"
                                 }).append(
                                     $("<a/>", {
                                         'href': '#payment_details',
@@ -961,7 +961,9 @@ var bookingModalInvoker = function ($) {
                                 )
                             )
                             .append(
-                                $("<li/>").append(
+                                $("<li/>",{
+                                    class: "history_tab"
+                                }).append(
                                     $("<a/>", {
                                         'href': '#history',
                                         'data-toggle': "tab",
@@ -987,26 +989,26 @@ var bookingModalInvoker = function ($) {
                                     })
                                 )
                             )
-                            .append(
-                                $("<li/>").append(
-                                    $("<a/>", {
-                                        'href': '#extras',
-                                        'data-toggle': "tab",
-                                        'text': l('extras')
-                                    })
-                                        .append(
-                                            $("<span/>", {
-                                                'class': 'extras_count',
-                                                'text': " ( " + that.booking.extras_count + " )"
-                                            })
-                                        )
-                                        .on('click', function (e) {
-                                            setTimeout(function () {
-                                                that._setHeight('extras');
-                                            }, 1000);
-                                        })
-                                )
-                            )
+                            // .append(
+                            //     $("<li/>").append(
+                            //         $("<a/>", {
+                            //             'href': '#extras',
+                            //             'data-toggle': "tab",
+                            //             'text': l('extras')
+                            //         })
+                            //             .append(
+                            //                 $("<span/>", {
+                            //                     'class': 'extras_count',
+                            //                     'text': " ( " + that.booking.extras_count + " )"
+                            //                 })
+                            //             )
+                            //             .on('click', function (e) {
+                            //                 setTimeout(function () {
+                            //                     that._setHeight('extras');
+                            //                 }, 1000);
+                            //             })
+                            //     )
+                            // )
                     )
                 );
 
@@ -1017,7 +1019,7 @@ var bookingModalInvoker = function ($) {
                         style: "padding: 0px 15px 0px 0px;"
                     }).append(
                         $("<ul/>", {
-                            class: "nav nav-tabs tabs-left left-sidebar",
+                            class: "nav nav-tabs tabs-left left-sidebar left-sidebar-fix-wep",
                         }).append(
                             $("<li/>", {
                                 class: 'active'
@@ -1056,13 +1058,57 @@ var bookingModalInvoker = function ($) {
                             //         })
                             //     )
                             // )
+
+                            .append(
+                                $("<li/>", {
+                                    // style: isTokenizationEnabled == 1 && innGrid.featureSettings.selectedPaymentGateway ? "" : "display: none;"
+                                }).append(
+                                    $("<a/>", {
+                                        'href': '#payment_details',
+                                        'id': 'pay_details_tab',
+                                        'data-toggle': "tab",
+                                        'text': l('Payment Details')
+                                    }).on('click', function (e) {
+                                        if (that.booking.state !== undefined) {
+                                            var customer_array = new Array();
+                                            if (that.booking.booking_id) {
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: getBaseURL() + "customer/get_customer_card_data",
+                                                    data: {
+                                                        booking_id: that.booking.booking_id
+                                                    },
+                                                    dataType: "json",
+                                                    success: function (new_customer_data) {
+                                                        if (new_customer_data != null) {
+                                                            // new_customer_data.push( {'booking_id': that.booking.booking_id} );
+                                                            that._populatePaymentCard(new_customer_data, that.booking.booking_id);
+                                                        }
+                                                    },
+                                                    error: function (e) {
+
+                                                    }
+                                                });
+                                            }
+
+
+                                        }
+                                        setTimeout(function () {
+                                            that._setHeight('payment_details');
+                                        }, 1000);
+                                    })
+                                )
+                            )
                             .append(
                                 $("<li/>", {
                                     style: isTokenizationEnabled == 1 && innGrid.featureSettings.selectedPaymentGateway ? "" : "display: none;"
                                 })
                             )
                             .append(
-                                $("<li/>").append(
+                                $("<li/>",{
+                                    class: "history_tab"
+                                }
+                                ).append(
                                     $("<a/>", {
                                         'href': '#history',
                                         'data-toggle': "tab",
@@ -1088,6 +1134,26 @@ var bookingModalInvoker = function ($) {
                                     })
                                 )
                             )
+                            // .append(
+                            //     $("<li/>").append(
+                            //         $("<a/>", {
+                            //             'href': '#extras',
+                            //             'data-toggle': "tab",
+                            //             'text': l('extras')
+                            //         })
+                            //             .append(
+                            //                 $("<span/>", {
+                            //                     'class': 'extras_count',
+                            //                     'text': " ( " + that.booking.extras_count + " )"
+                            //                 })
+                            //             )
+                            //             .on('click', function (e) {
+                            //                 setTimeout(function () {
+                            //                     that._setHeight('extras');
+                            //                 }, 1000);
+                            //             })
+                            //     )
+                            // )
                     )
                 );
             }
@@ -1176,7 +1242,7 @@ var bookingModalInvoker = function ($) {
                 if (that.groupInfo == null) {
                     $("#booking-modal .modal-header").append(
                         $("<div/>", {
-                            class: "btn-group pull-right",
+                            class: "btn-group pull-right btn-fix-wep",
                             'data-toggle': "buttons",
                             style: "margin-right: 20px;"
                         })
@@ -1281,6 +1347,10 @@ var bookingModalInvoker = function ($) {
                 //$('div.booked-by-block .tokenfield input.token-input').css('display', 'none');
             }
 
+            var event = new CustomEvent('post.open_booking_modal', { "detail" : {"reservation_id" : that.booking.booking_id,"count": that.booking.extras_count} });
+            // Dispatch/Trigger/Fire the event
+            document.dispatchEvent(event);
+
         },
         _updateModalContent: function () {
 
@@ -1376,7 +1446,7 @@ var bookingModalInvoker = function ($) {
                         })
                             .append(
                                 $("<div/>", {
-                                    class: "col-sm-6",
+                                    class: "col-sm-6 width-fix-wep",
                                     //style: "padding-left: 0px;"
                                 }).append(
                                     $("<label/>", {
@@ -1399,7 +1469,7 @@ var bookingModalInvoker = function ($) {
                             )
                             .append(
                                 $("<div/>", {
-                                    class: "col-sm-6",
+                                    class: "col-sm-6 per-txt-fix",
                                     style: "padding: 0;"
                                 }).append(
                                     $("<label/>", {
@@ -1525,16 +1595,16 @@ var bookingModalInvoker = function ($) {
             $("#booking-modal").find(".modal-content").html("");
 
             // get extras for new booking
-            // if (!innGrid.ajaxCache.extras) {
-            //     $.getJSON(getBaseURL() + 'extra/get_all_extras_JSON',
-            //         function (data) {
-            //             that.extras = data;
-            //             innGrid.ajaxCache.extras = data;
-            //         }
-            //     );
-            // } else {
-            //     that.extras = innGrid.ajaxCache.extras;
-            // }
+            if (!innGrid.ajaxCache.extras) {
+                $.getJSON(getBaseURL() + 'extra/get_all_extras_JSON',
+                    function (data) {
+                        that.extras = data;
+                        innGrid.ajaxCache.extras = data;
+                    }
+                );
+            } else {
+                that.extras = innGrid.ajaxCache.extras;
+            }
             this._constructModalComponents();
 
         },
@@ -1610,7 +1680,7 @@ var bookingModalInvoker = function ($) {
             var panel = this.$panel.clone();
 
             var sourceSelectDiv = $("<select/>", {
-                class: "form-control",
+                class: "form-control select-fix-wep",
                 name: "source"
             });
 
@@ -1654,7 +1724,7 @@ var bookingModalInvoker = function ($) {
             panel.find(".panel-body")
                 .append(
                     $("<div/>", {
-                        class: "tab-content",
+                        class: "tab-content tab-gap-wep",
                         //style: "padding: 0px 15px 0px 0px;"
                     })
                         .append(
@@ -2426,7 +2496,7 @@ var bookingModalInvoker = function ($) {
                         .append(
                             $("<div/>", {
                                 'id': 'history',
-                                'class': "tab-pane"
+                                'class': "tab-pane tab-gap-wep"
                             }).append(
                                 $("<div/>", {
                                     class: "content"
@@ -2436,82 +2506,76 @@ var bookingModalInvoker = function ($) {
                         .append(
                             $("<div/>", {
                                 'id': 'extras',
-                                'class': "tab-pane",
+                                'class': "tab-pane"
                             })
+                                .append(
+                                    $("<div/>", {
+                                        style: 'text-align:right;'
+                                    })
+                                        .append(
+                                            $('<button/>', {
+                                                class: 'btn btn-primary btn-sm',
+                                                text: l('add_extra'),
+                                                style: 'margin: 0px 0px 10px 0px;'
+                                            }).on('click', function (e) {
+                                                e.preventDefault(); // prevent # scrolling to the top
+
+                                                if (!that.extras || !that.extras[0]) {
+                                                    alert(l('Please add the extras first under Settings')+ " > "+l('Rates')+" > "+l('Products'));
+                                                    return;
+                                                }
+
+                                                that._initializeInnerModal();
+
+                                                var extraData = {
+                                                    extra_id: that.extras && that.extras[0] ? that.extras[0].extra_id : null,
+                                                    extra_name: that.extras && that.extras[0] ? that.extras[0].extra_name : null,
+                                                    start_date: that.booking.check_in_date,
+                                                    end_date: that.booking.check_out_date,
+                                                    quantity: 1,
+                                                    rate: that.extras && that.extras[0] ? that.extras[0].rate : null
+                                                };
+
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: getBaseURL() + "extra/create_booking_extra_AJAX",
+                                                    data: {
+                                                        booking_id: that.booking.booking_id,
+                                                        extra_data: extraData
+                                                    },
+                                                    dataType: "json",
+                                                    success: function (response) {
+                                                        that._editBookingExtra(response.booking_extra_id);
+
+                                                        // update booking balance
+                                                        if (response && $.isNumeric(response.balance)) {
+                                                            $('.booking_balance').html(number_format(response.balance, 2, ".", ""));
+                                                        }
+
+                                                        var current_count = $('.left-sidebar').find('.extras_count').text().split(' ');
+                                                        var new_count = (parseInt(current_count[2])) + 1;
+                                                        $('.left-sidebar').find('.extras_count').html(" ( " + new_count + " )");
+                                                        // if this is the first extra to this booking,
+                                                        // create extra container (panel). otherwise, append extra to existing
+                                                        extraData.booking_extra_id = response.booking_extra_id;
+                                                        if ($("#extra-container").length) {
+                                                            extraData.charging_scheme = $("#inner-modal").find("[name='extra_id'] option:selected").attr('data-charging-scheme');
+                                                            $("#extra-container").append(that._getBookingExtraDiv(extraData));
+                                                        } else {
+                                                            if (!that.booking.extras) {
+                                                                that.booking.extras = [];
+                                                            }
+                                                            that.booking.extras.push(extraData);
+                                                            var extraPanel = that._getExtraPanel();
+                                                            $("#booking-modal").find(".modal-body").find(".panel-body").find("#extras").append(extraPanel);
+                                                        }
+                                                    }
+                                                })
+                                            })
+                                        )
+                                )
+                                .append(this._getExtraPanel())
                         )
-                        // .append(
-                        //     $("<div/>", {
-                        //         'id': 'extras',
-                        //         'class': "tab-pane"
-                        //     })
-                        //         .append(
-                        //             $("<div/>", {
-                        //                 style: 'text-align:right;'
-                        //             })
-                        //                 .append(
-                        //                     $('<button/>', {
-                        //                         class: 'btn btn-primary btn-sm',
-                        //                         text: l('add_extra'),
-                        //                         style: 'margin: 0px 0px 10px 0px;'
-                        //                     }).on('click', function (e) {
-                        //                         e.preventDefault(); // prevent # scrolling to the top
-
-                        //                         if (!that.extras || !that.extras[0]) {
-                        //                             alert(l('Please add the extras first under Settings')+ " > "+l('Rates')+" > "+l('Extras'));
-                        //                             return;
-                        //                         }
-
-                        //                         that._initializeInnerModal();
-
-                        //                         var extraData = {
-                        //                             extra_id: that.extras && that.extras[0] ? that.extras[0].extra_id : null,
-                        //                             extra_name: that.extras && that.extras[0] ? that.extras[0].extra_name : null,
-                        //                             start_date: that.booking.check_in_date,
-                        //                             end_date: that.booking.check_out_date,
-                        //                             quantity: 1,
-                        //                             rate: that.extras && that.extras[0] ? that.extras[0].rate : null
-                        //                         };
-
-                        //                         $.ajax({
-                        //                             type: "POST",
-                        //                             url: getBaseURL() + "extra/create_booking_extra_AJAX",
-                        //                             data: {
-                        //                                 booking_id: that.booking.booking_id,
-                        //                                 extra_data: extraData
-                        //                             },
-                        //                             dataType: "json",
-                        //                             success: function (response) {
-                        //                                 that._editBookingExtra(response.booking_extra_id);
-
-                        //                                 // update booking balance
-                        //                                 if (response && $.isNumeric(response.balance)) {
-                        //                                     $('.booking_balance').html(number_format(response.balance, 2, ".", ""));
-                        //                                 }
-
-                        //                                 var current_count = $('.left-sidebar').find('.extras_count').text().split(' ');
-                        //                                 var new_count = (parseInt(current_count[2])) + 1;
-                        //                                 $('.left-sidebar').find('.extras_count').html(" ( " + new_count + " )");
-                        //                                 // if this is the first extra to this booking,
-                        //                                 // create extra container (panel). otherwise, append extra to existing
-                        //                                 extraData.booking_extra_id = response.booking_extra_id;
-                        //                                 if ($("#extra-container").length) {
-                        //                                     extraData.charging_scheme = $("#inner-modal").find("[name='extra_id'] option:selected").attr('data-charging-scheme');
-                        //                                     $("#extra-container").append(that._getBookingExtraDiv(extraData));
-                        //                                 } else {
-                        //                                     if (!that.booking.extras) {
-                        //                                         that.booking.extras = [];
-                        //                                     }
-                        //                                     that.booking.extras.push(extraData);
-                        //                                     var extraPanel = that._getExtraPanel();
-                        //                                     $("#booking-modal").find(".modal-body").find(".panel-body").find("#extras").append(extraPanel);
-                        //                                 }
-                        //                             }
-                        //                         })
-                        //                     })
-                        //                 )
-                        //         )
-                        //         .append(this._getExtraPanel())
-                        // )
                 )
 
 
@@ -3109,6 +3173,8 @@ var bookingModalInvoker = function ($) {
                             rateValue = value['adult_' + adultCount + '_rate'];
                         else if (value.base_rate != null) // set custom rate value
                             rateValue = value.base_rate;
+                        else
+                            rateValue = 0;
 
                         editRateRowTh.append(
                             $("<th/>", {
@@ -3354,9 +3420,9 @@ var bookingModalInvoker = function ($) {
                             card_details_part_sec
                         )
                 }
-                /*$(".payment-modal").find(".row").append(
+                $(".payment-modal").find(".row").append(
                                  error_part
-                           )*/
+                )
                 $("#remove_card").on("click", function () {
                     $(document).openCardModal({
                         customer_id: log.customer_id,
@@ -3673,12 +3739,12 @@ var bookingModalInvoker = function ($) {
                         .append(
                             $("<div/>", {
                                 class: "form-group input-group" + (innGrid.enableHourlyBooking ? ' hourly-booking-enabled' : ''),
-                                style: "display: -webkit-inline-box;"
+                                style: "display: -webkit-inline-box;width: 100% ;"
                             })
                                 .append(
                                     $("<input/>", {
                                         name: 'check_out_date',
-                                        class: 'form-control check-out-date-wrapper',
+                                        class: 'form-control check-out-date-wrapper fix-wep',
                                         placeholder: l("Check-out Date"),
                                         style: "border-bottom-left-radius: 4px;border-top-left-radius: 4px;",
                                         value: checkOutDt
@@ -3921,7 +3987,7 @@ var bookingModalInvoker = function ($) {
                                                     })
                                                         .append(
                                                             $("<div/>", {
-                                                                class: "col-sm-6 form-group"
+                                                                class: "col-sm-6 form-group width-fix-wep"
                                                             })
                                                                 .append(
                                                                     $('<label/>', {
@@ -4239,7 +4305,7 @@ var bookingModalInvoker = function ($) {
             } else {
                 modalHeader.prepend(
                     $("<span/>", {
-                        class: "h4",
+                        class: "h4 heading-fix-wep",
                         html: l("Create new booking")
                     })
                 );
@@ -4852,7 +4918,12 @@ var bookingModalInvoker = function ($) {
                             errorMsg += error + "<br/>";
                         });
                         $('#reservation-message .message').html(errorMsg);
-                        $('#reservation-message').modal('show');
+                        $('#reservation-message')
+                            .modal('show')
+                            .on('hidden.bs.modal', function () {
+                                if (($("#booking-modal").data('bs.modal') || {}).isShown)
+                                    $("body").addClass("modal-open");
+                            });
                         $('.confirm-customer').on('click', function () {
                             $('#reservation-message').modal('hide');
                             return false;
@@ -4909,7 +4980,7 @@ var bookingModalInvoker = function ($) {
                             }
 
                             // Create the event
-                            var event = new CustomEvent('open_booking_modal', { "detail" : {"reservation_id" : that.booking.booking_id, "booking_data" : that.booking} });
+                            var event = new CustomEvent('post.open_booking_modal', { "detail" : {"reservation_id" : that.booking.booking_id, "booking_data" : that.booking} });
                             var bookingCreatedEvent = new CustomEvent('booking_created', { "detail" : {"reservation_id" : that.booking.booking_id, "booking_data" : that.booking, "booking_room_data" : data.rooms[0]} });
 
                             // Dispatch/Trigger/Fire the event
@@ -4927,7 +4998,7 @@ var bookingModalInvoker = function ($) {
                             console.log('response',response);
 
                             // Create the event
-                            var event = new CustomEvent('open_booking_modal', { "detail" : {"reservation_id" : that.booking.booking_id, "booking_data" : that.booking} });
+                            var event = new CustomEvent('post.open_booking_modal', { "detail" : {"reservation_id" : that.booking.booking_id, "booking_data" : that.booking} });
                             var bookingCreatedEvent = new CustomEvent('booking_created', { "detail" : {"booking_data" : that.booking, "booking_room_data" : response} });
 
                             // Dispatch/Trigger/Fire the event
@@ -5634,10 +5705,10 @@ var bookingModalInvoker = function ($) {
                 var customer_type_id = item.customer_type_id;
                 var background_color = '';
                 var blacklist = '';
-                if (customer_type_id == '1') {
+                if (customer_type_id == '-1') {
                     background_color = "background-color: #FF0000";
                     blacklist = true;
-                } else if (customer_type_id == '2') {
+                } else if (customer_type_id == '-2') {
                     background_color = "background-color: #DAA520";
                 }
                 return $("<li>", {
@@ -6365,25 +6436,25 @@ var bookingModalInvoker = function ($) {
 
         },
         // Populate payment_card
-        /* _populatePaymentCardDDL: function () {
+        //  _populatePaymentCardDDL: function () {
 
-                        $('#payment_details').html('');
-                        $('#payment_details').append(
-                                                $("<div/>", {
-                                                    style: 'text-align:right;'
-                                                })
-                                                .append(
-                                                    $('<button/>', {
-                                                        class: 'btn btn-primary btn-sm',
-                                                        text: l('print'),
-                                                        style: 'margin: 0px 0px 10px 0px;'
-                                                    }).on('click', function (e) {
-                                                        $('.full_registration').printThis();
-                                                    })
-                                                )
-                                            )
+        //                 $('#payment_details').html('');
+        //                 $('#payment_details').append(
+        //                                         $("<div/>", {
+        //                                             style: 'text-align:right;'
+        //                                         })
+        //                                         .append(
+        //                                             $('<button/>', {
+        //                                                 class: 'btn btn-primary btn-sm',
+        //                                                 text: l('print'),
+        //                                                 style: 'margin: 0px 0px 10px 0px;'
+        //                                             }).on('click', function (e) {
+        //                                                 $('.full_registration').printThis();
+        //                                             })
+        //                                         )
+        //                                     )
 
-        }, */
+        // }, 
         // set height of right sidebar
         _setHeight: function (tab) {
             var height = $('#' + tab).height() + 100;
@@ -6941,11 +7012,11 @@ var bookingModalInvoker = function ($) {
             $.data(body, 'bookingModal', new BookingModal(options));
         }
 
-        // Create the event
-        var event = new CustomEvent('open_booking_modal', { "detail" : {"reservation_id" : options.id} });
+        // // Create the event
+        // var event = new CustomEvent('open_booking_modal', { "detail" : {"reservation_id" : options.id} });
 
-        // Dispatch/Trigger/Fire the event
-        document.dispatchEvent(event);
+        // // Dispatch/Trigger/Fire the event
+        // document.dispatchEvent(event);
     }
 
     // group manager search
@@ -7033,7 +7104,7 @@ var bookingModalInvoker = function ($) {
                             class: "col-sm-2",
                         }).append(
                             $("<div/>", {
-                                class: "btn btn-light",
+                                class: "btn btn-light close-wep",
                                 'data-dismiss': "modal",
                                 type: "button",
                                 text: l('Close')

@@ -27,10 +27,10 @@
 * [License](#license)
 
 ## What is miniCal?
-miniCal is an open-source PMS (Property Management System). It was originally designed for hotel software companies, but other businesses like car rental business can use it also. 
+miniCal is an open-source PMS (Property Management System). It was originally designed for hotel software companies, but other businesses like car rental businesses can use it also. 
 
 ## Our mission
-We see hundreds of PMS companies developing the same features and integrations as everyone else, and we think it's a waste of resources. Our mission is develop a single best technology that can perform better than the most PMS companies' in-house developed products, and completely take technical burden off of their shoulders.
+We see hundreds of PMS companies developing the same features and integrations as everyone else, and we think it's a waste of resources. Our mission is to develop a single best technology that can perform better than most PMS companies' in-house developed products, and completely take the technical burden off of their shoulders.
 
 <img src="https://snipboard.io/KZDfkU.jpg" alt="">
 
@@ -53,17 +53,20 @@ miniCal documentation is available here [minical.doc](https://github.com/minical
 ## Installation
 
 * Fork the repository `https://github.com/minical/minical` or clone it locally.
-* Install the stable version of PHP 7.2.0, MySQL 5.0.4, and OS-specific dependency tools.
+* Install the stable version of PHP 7.3.0, MySQL 5.0.4, and OS-specific dependency tools.
 * Create a MySql database with any name.
 * Do the basic [configuration updates](https://github.com/minical/minical/wiki/configuration) on the public->build.json file.
 * Create a new file named ".env" by copying the .env.example file which is located in the root. 
-* Update database credentials and project URL in .env file, for more details check the [.env example](https://github.com/minical/minical/wiki/.env-example).
-* Run the "composer install" command on your project.
-* Install miniCal by going to `http://localhost/minical/public/install.php` in your browser and create an admin account.
+* Update database credentials in .env file in .env file
+* Set Environment variable to either 'development' or 'production' in .env file
+* Update Project URL (Url pointing to a public folder in minical project like http://localhost/minical/public) in .env file
+* Update API Url (Url pointing to API folder in minical project like http://localhost/minical/api) in .env file, for more details check the [.env example](https://github.com/minical/minical/wiki/.env-example).
+* Install composer dependencies by running the "composer install" command on your project root.
+* Install miniCal Database by going to `http://localhost/minical/public/install.php` in your browser, following the installation steps, and create an admin account.
 * That's it. You are done! Visit miniCal at `http://localhost/minical/public`
 
 ## Demo
-Visit [miniCal Demo](http://demo.minical.io/).
+Visit [miniCal Demo](https://demo.minical.io/).
 
 
 ## Code of Conduct
@@ -73,12 +76,12 @@ miniCal follows [Codeigniter Style Guide](https://codeigniter.com/userguide3/gen
 
 Any contribution for a new feature or an improvement will be appreciated.
 ###### To make a contribution:
-1. Fork the repository, and edit.
-2. Submit the pull request, please provide a comprehensive description of PR as commit message.
+1. Fork the repository and edit.
+2. Submit the pull request, please provide a comprehensive description of PR as a commit message.
 3. Any pull request that the reviewers don't find useful to miniCal will be rejected. We recommend you to talk to us first before working on a PR. Also, please ensure your code is following [Codeigniter Style Guide](https://codeigniter.com/userguide3/general/styleguide.html).
 
 ## How to develop an extension
-Do you have an idea of an extension that might be a great addon to miniCal community?
+Do you have an idea of an extension that might be a great addon to the miniCal community?
 Follow [Extension development guide](https://github.com/minical/minical/wiki).
 
 ## Join the Community
@@ -95,7 +98,7 @@ A MAJOR is very rare, it would only be considered if the source was effectively 
 
 A MINOR is when there are significant changes that affect core structures. This increment would likely break some 3rd party modules.
 
-A FEATURE version is when new extensions or features are added (such as a payment gateway, shipping module etc). Updating a feature version is at a low risk of breaking 3rd party modules.
+A FEATURE version is when new extensions or features are added (such as a payment gateway, shipping module, etc). Updating a feature version is at a low risk of breaking 3rd party modules.
 
 A PATCH version is when a fix is added, it should be considered safe to update patch versions e.g 1.2.3.4 to 1.2.3.5
 

@@ -146,7 +146,7 @@ class Invoice extends MY_Controller {
         $data['currency_symbol'] = $this->session->userdata('currency_symbol');
         if (!$data['currency_symbol']) {
             $default_currency       = $this->Currency_model->get_default_currency($this->company_id);
-            $data['currency_symbol'] = $default_currency['currency_code'];
+            $data['currency_symbol'] = isset($default_currency['currency_code']) ? $default_currency['currency_code'] : null;
             $this->session->set_userdata(array('currency_symbol' => $data['currency_symbol']));
         }
 
@@ -192,7 +192,7 @@ class Invoice extends MY_Controller {
                 $data['customers'][$key]['cc_tokenex_token'] = $card_data['cc_tokenex_token'];
                 $data['customers'][$key]['cc_cvc_encrypted'] = $card_data['cc_cvc_encrypted'];
                 $data['customers'][$key]['evc_card_status'] = $card_data['evc_card_status'];
-                $data['customers'][$key]['customer_meta_token'] = json_decode($card_data['customer_meta_data'], true)['token'];
+                $data['customers'][$key]['customer_meta_token'] = isset($card_data['customer_meta_data']) && $card_data['customer_meta_data'] && isset(json_decode($card_data['customer_meta_data'], true)['token']) ? json_decode($card_data['customer_meta_data'], true)['token'] : null;
             }
         }
         // for company logo
@@ -778,6 +778,7 @@ class Invoice extends MY_Controller {
 
     function save_invoice()
     {
+
         $user_id = $this->session->userdata('user_id');
         $booking_id = $this->input->post('booking_id');
         $folio_id = $this->input->post('folio_id');
@@ -789,16 +790,24 @@ class Invoice extends MY_Controller {
         $charges = $this->input->post('charges');
 
         $is_extra_pos = $this->input->post('is_extra_pos');
+
+
         if($charges && count($charges) > 0)
         {
+
             foreach ($charges as $key => $charge) {
+                 // prx($charge);
                 
                 $charge['user_id'] = $user_id;
+
+                $is_pos = false;
+                $quantity = isset($charge['qty']) ? $charge['qty'] : 1;
                 
                 if(!$is_extra_pos){
                     $isRoomChargeType = $charge['isRoomChargeType'];
                     unset($charge['isRoomChargeType']);
                     $charge['selling_date'] = date('Y-m-d', strtotime($charge['selling_date']));
+                    $is_pos = false;
                 } else {
                     $charge['selling_date'] = date('Y-m-d', strtotime($this->selling_date));
                     $charge['booking_id'] = $booking_id;
@@ -807,10 +816,21 @@ class Invoice extends MY_Controller {
                     unset($charge['extra_id']);
                     unset($charge['extra_qty']);
                     unset($charge['qty']);
+                    $is_pos = true;
                 }
 
                 $charge_id = $this->Charge_model->insert_charge($charge);
+
+                $post_charge_data = $charge;
+                $post_charge_data['charge_id'] = $charge_id;
+                // $post_charge_data['qty'] = $quantity;
+
                 
+                do_action('post.create.charge', $post_charge_data);
+
+                $charge_action_data = array('charge_id' => $charge_id, 'charge' => $charge, 'company_id'=> $this->company_id, 'is_pos' => $is_pos,'qty'=>$quantity);
+                do_action('post.add.charge', $charge_action_data);
+
                 if(isset($card_data['evc_card_status']) && $card_data['evc_card_status'] && $isRoomChargeType && false){
                     // check folio is exist or not
                     $evc_folio_id = $this->check_EVC_folio('Expedia EVC', $booking_id, $customer_id, true);
@@ -862,6 +882,9 @@ class Invoice extends MY_Controller {
             }
         }
         $this->Invoice_model->update_charges($charge_changes);
+
+        $post_charge_data = $charge_changes;
+        do_action('post.update.charge', $post_charge_data);
         
         $this->Booking_model->update_booking_balance($booking_id);
         echo $charge_id;
@@ -985,6 +1008,12 @@ class Invoice extends MY_Controller {
                 }
                 elseif($response['success'])
                 {
+
+                    $post_payment_data = $response;
+                    $post_payment_data['payment_id'] = $response['payment_id'];
+
+                    do_action('post.create.payment', $post_payment_data);
+
                     $invoice_log_data = array();
                     $invoice_log_data['date_time'] = gmdate('Y-m-d h:i:s');
                     $invoice_log_data['booking_id'] = $booking['booking_id'];
@@ -1037,6 +1066,11 @@ class Invoice extends MY_Controller {
             $cvc = $this->input->post('cvc');
             unset($data['capture_payment_type']);
             $response = $this->Payment_model->insert_payment($data, $cvc, $capture_payment_type);
+
+            $post_payment_data = $response;
+            $post_payment_data['payment_id'] = $response['payment_id'];
+
+            do_action('post.create.payment', $post_payment_data);
 
             if (isset($card_data['evc_card_status']) && $card_data['evc_card_status'] && false) {
                 // check folio is exist or not
@@ -1150,8 +1184,14 @@ class Invoice extends MY_Controller {
         
         if ($this->Booking_model->get_booking_detail($booking_id)) {                
             $this->Charge_model->delete_charge($charge_id, $company_id);
+            
+            $post_charge_data['charge_id'] = $charge_id;
+            do_action('post.delete.charge', $post_charge_data);
         }
         $this->Booking_model->update_booking_balance($booking_id);
+
+        $charge_action_data = array('charge_id' => $charge_id);
+        do_action('post.delete.charge', $charge_action_data);
             
         $invoice_log_data = array();
         $invoice_log_data['date_time'] = gmdate('Y-m-d h:i:s');
@@ -1177,6 +1217,11 @@ class Invoice extends MY_Controller {
             echo json_encode($refund);
             return;
         }
+
+        $post_payment_data = $refund;
+        $post_payment_data['payment_id'] = $payment_id;
+
+        do_action('post.create.payment', $post_payment_data);
         
         $this->Booking_model->update_booking_balance($payment['booking_id']);
         
@@ -1219,6 +1264,10 @@ class Invoice extends MY_Controller {
         $payment = $this->Payment_model->get_payment($payment_id);
         // if the user permission level above employee, and the booking belongs to the company
         $this->Payment_model->delete_payment($payment_id);
+
+        $post_payment_data['payment_id'] = $payment_id;
+        do_action('post.delete.payment', $post_payment_data);
+
         $this->Booking_model->update_booking_balance($payment['booking_id']);        
         $invoice_log_data = array();
         $invoice_log_data['date_time'] = gmdate('Y-m-d h:i:s');
@@ -1304,6 +1353,37 @@ class Invoice extends MY_Controller {
         }
     }
 
+     // when user clicks on x-button beside payment
+     function void_payment()
+     {
+        $payment_id = $this->input->post('payment_id');
+        $payment = $this->Payment_model->get_payment($payment_id);
+        $void = $this->Payment_model->void_payment($payment_id); 
+
+        $post_payment_data = $payment;
+        $post_payment_data['payment_id'] = $payment_id;
+
+        do_action('post.update.payment', $post_payment_data);
+
+        if (isset($void['success']) && !$void['success']) {
+            echo json_encode($void);
+            return;
+        }
+    
+        $this->Booking_model->update_booking_balance($payment['booking_id']);
+        $invoice_log_data = array();
+        $invoice_log_data['date_time'] = gmdate('Y-m-d h:i:s');
+        $invoice_log_data['booking_id'] = $payment['booking_id'];
+        $invoice_log_data['user_id'] = $this->session->userdata('user_id');
+        $invoice_log_data['action_id'] = VOID_PAYMENT;
+        $invoice_log_data['charge_or_payment_id'] = $payment_id;
+        $invoice_log_data['new_amount'] =  -$payment['amount'];
+        $invoice_log_data['log'] = 'Payment voided';
+        $this->Invoice_log_model->insert_log($invoice_log_data);
+        
+        echo json_encode($void);   
+    
+    }
    
 
     

@@ -60,7 +60,7 @@
                         </label>
 
                         <div class="col-sm-8" id="use-gateway-div">
-                            <div class="col-sm-2"><input type="checkbox" class="form-control use-gateway" data-gateway_name="<?=$selected_payment_gateway;?>" name="<?=$selected_payment_gateway;?>_use_gateway"></div>
+                            <div class="col-sm-2"><input type="checkbox" class="form-control use-gateway" id="check-wep" data-gateway_name="<?=$selected_payment_gateway;?>" name="<?=$selected_payment_gateway;?>_use_gateway"></div>
                         </div>
                     </div>
                     
@@ -248,14 +248,14 @@
 
 <div id='invoice-container' class="">
     <div class="app-page-title">
-        <div class="page-title-wrapper">
+        <div class="page-title-wrapper page-title-wrapper-wep">
             <div class="page-title-heading">
                 <div class="page-title-icon">
                     <i class="pe-7s-notebook text-success"></i>
                 </div>
                 <?php echo l('invoice'); ?>
             </div>
-            <div class="page-title-actions">
+            <div class="page-title-actions m-025">
                 <div>
                     <button class="btn btn-primary m-1" id="print-invoice-button">
                         <?php echo l('print').' '.l('invoice'); ?>
@@ -296,7 +296,7 @@
 
 
 <div class="main-card mb-3 card">
-    <div class="card-body">
+    <div class="card-body card-img">
 
     <?php
     // show company logo image
@@ -306,8 +306,8 @@
     ?>
 
     <div class="col-md-12 row invoice-header">
-        <div class="col-xs-4 padding-left-zero">
-            <address>
+        <div class="col-xs-4 padding-left-zero padding-left-zero-wep">
+            <address class="text-gapp">
                 <?php
 
                 $company_address = array(
@@ -328,8 +328,8 @@
                 ?>
                 <?php echo '<p class="invoice-header">'.$company['invoice_header'].'</p>'; ?>
         </div>
-        <div class="col-xs-4 invoice_heading_div">
-            <address class="form-inline">
+        <div class="col-xs-4 invoice_heading_div padding-left-zero-wep">
+            <address class="form-inline text-gapp billed-gap">
                 <strong><?php  echo l('billed_to'); ?>:</strong>
                 <?php
                 if (count($booking_customer) > 0):
@@ -392,15 +392,15 @@
                 ?>
             </address>
         </div>
-           <div class="pull-right">
+           <div class="pull-right right-wep">
                     <strong><?php echo l('invoice'); ?> #:</strong>
                     <?php echo str_pad((isset($invoice_number))?$invoice_number:0, 8, "0", STR_PAD_LEFT); ?>
                 </div>
-        <div class="col-xs-4 text-right booking_id_div padding-right-zero">
+        <div class="col-xs-4 text-right booking_id_div padding-right-zero padding-left-zero-wep">
              
-            <address>
+            <address class="text-gapp book-wep">
                 <strong class="invoice_booking_id"><?php echo l('booking').' '.l('id'); ?>:</strong>
-                <input type="text" class="text-right" id="booking_id" disabled value="<?php
+                <input type="text" class="text-right m-119 m-024" id="booking_id" disabled value="<?php
                 // add 8 leading zeroes
                 echo $booking_detail['booking_id']
                 ?>"/>
@@ -413,14 +413,14 @@
                  echo($company['default_room_type']);?>: <?php echo (isset($room_detail['room_type_name']))?$room_detail['room_type_name']:''; ?><br/>
                 <?php echo l('check_in_date'); ?>: <span id="check-in-date">
 
-                <?php echo $this->enable_hourly_booking ? get_local_formatted_date($booking_detail['check_in_date']).' '.date('h:i A', strtotime($booking_detail['check_in_date'])) : get_local_formatted_date($booking_detail['check_in_date']);
+                <?php echo isset($this->enable_hourly_booking) ? get_local_formatted_date($booking_detail['check_in_date']).' '.date('h:i A', strtotime($booking_detail['check_in_date'])) : get_local_formatted_date($booking_detail['check_in_date']);
                 ?>
                     
                 </span><br/>
                 
                 <?php echo l('check_out_date'); ?>: <span id="check-out-date">
                 
-                <?php echo $this->enable_hourly_booking ? get_local_formatted_date($booking_detail['check_out_date']).' '.date('h:i A', strtotime($booking_detail['check_out_date'])) : get_local_formatted_date($booking_detail['check_out_date']);
+                <?php echo isset($this->enable_hourly_booking) ? get_local_formatted_date($booking_detail['check_out_date']).' '.date('h:i A', strtotime($booking_detail['check_out_date'])) : get_local_formatted_date($booking_detail['check_out_date']);
                 ?>
 
                 </span><br/>
@@ -445,7 +445,7 @@
                         <?php
                         if($folios && count($folios) > 0) {
                             foreach ($folios as $key => $folio) { ?>
-                                <li class="<?=($current_folio_id == $folio['id']) ? " active " : ""?> <?=$folio['charge_count'] || $folio['payment_count'] ? "non-empty-folio" : "";?>" data-folio-id="<?=$folio['id'];?>">
+                                <li class="<?=($current_folio_id == $folio['id']) ? " active " : ""?> <?=$folio['charge_count'] || $folio['payment_count'] ? "non-empty-folio" : "";?> extra-large-wep" data-folio-id="<?=$folio['id'];?>">
                                     <div>
                                         <a href="<?= base_url()."invoice/show_invoice/".$booking_detail['booking_id']."/".$folio['id'];?>">
                                             <div><?php echo l('Folio', true); ?> #<?php echo $key + 1; ?></div>
@@ -488,7 +488,7 @@
                 <div class="col-sm-8">
                     <?php echo l('charges'); ?>
                 </div>
-                <div class="col-sm-4 text-right">
+                <div class="col-sm-4 text-right m-022">
                     <button class="hidden-print btn btn-light btn-sm expand-all">
                         <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
                         <?php echo l('expand_all'); ?>
@@ -500,6 +500,7 @@
                 </div>
             </div>
 
+            <div class="table-responsive col-lg-12">
             <table id="charge-table" class="table" >
                 <thead>
                 <tr>
@@ -636,7 +637,7 @@
 												<!-- 	<span class="caret"></span> -->
 												</span>
                                         <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a class="x-button" title="Created by <?php echo $charge['user_name']; ?>"><?php echo l('Delete', true); ?></a>
+                                            <li><a class="x-button delete_charge" title="Created by <?php echo $charge['user_name']; ?>"><?php echo l('Delete', true); ?></a>
                                             </li>
                                             <li>
                                                 <a class="folios_modal" href="#" data-toggle="modal" data-target="#move-charge-modal" class="update-charge-folio"><?php echo l('Move to another Folio', true); ?></a>
@@ -757,6 +758,7 @@
                 </tr>
                 </tfoot>
             </table>
+            </div>
         </div>
         <!-- /.panel -->
 
@@ -764,6 +766,7 @@
             <div class="h2 text-left payment_div">
                 <?php echo l('payments'); ?>
             </div>
+            <div class="table-responsive">
             <table id="payment-table" class="table table-hover" >
                 <thead>
                 <tr>
@@ -801,17 +804,60 @@
                                 <?php if ($payment['payment_gateway_used'] && !$read_only): ?>
                                     <?php
                                     if($payment['payment_status'] == 'partial'){
-                                        printf(
-                                            '%s %s',
-                                            'Partial Refund ID:',
-                                            $payment['gateway_charge_id']
-                                        );
-                                    }else{
-                                        printf(
-                                            '%s %s',
-                                            $payment['amount'] > 0 && $payment['gateway_charge_id'] ? 'Charge ID:' : ($payment['gateway_charge_id'] ? 'Refund ID:' : ''),
-                                            $payment['gateway_charge_id']
-                                        );
+                                        if (strlen($payment['gateway_charge_id'] ) > 30){
+                                            $charge_id = substr($payment['gateway_charge_id'], 0, 20) . '...';
+                                            printf(
+                                                    '%s %s',
+                                                    'Partial Refund ID:',
+                                                    $charge_id
+                                                ); 
+                                        }else{
+                                            printf(
+                                                    '%s %s',
+                                                    'Partial Refund ID:',
+                                                    $payment['gateway_charge_id']
+                                                ); 
+                                        }
+                                        // printf(
+                                        //     '%s %s',
+                                        //     'Partial Refund ID:',
+                                        //     $payment['gateway_charge_id']
+                                        // );
+                                    } elseif($payment['payment_status'] == 'void'){
+                                        if (strlen($payment['gateway_charge_id'] ) > 30){
+                                            $charge_id = substr($payment['gateway_charge_id'], 0, 20) . '...';
+                                            printf(
+                                                '%s %s',
+                                                $payment['amount'] > 0 && $charge_id ? 'Void ID:' : ($charge_id ? 'Void ID:' : ''),
+                                                $charge_id
+                                            ); 
+                                        }else{
+                                            printf(
+                                                '%s %s',
+                                                $payment['amount'] > 0 && $payment['gateway_charge_id'] ? 'Void ID:' : ($payment['gateway_charge_id'] ? 'Void ID:' : ''),
+                                                $payment['gateway_charge_id']
+                                            ); 
+                                        }
+                                    } else{
+                                        if (strlen($payment['gateway_charge_id'] ) > 30){
+                                            $charge_id = substr($payment['gateway_charge_id'], 0, 20) . '...';
+                                            printf(
+                                                '%s %s',
+                                                $payment['amount'] > 0 && $charge_id ? 'Charge ID:' : ($charge_id ? 'Refund ID:' : ''),
+                                                $charge_id
+                                            ); 
+                                        }else{
+                                            printf(
+                                                '%s %s',
+                                                $payment['amount'] > 0 && $payment['gateway_charge_id'] ? 'Charge ID:' : ($payment['gateway_charge_id'] ? 'Refund ID:' : ''),
+                                                $payment['gateway_charge_id']
+                                            ); 
+                                        }
+                                        // printf(
+                                        //     '%s %s',
+                                        //     $payment['amount'] > 0 && $payment['gateway_charge_id'] ? 'Charge ID:' : ($payment['gateway_charge_id'] ? 'Refund ID:' : ''),
+                                        //     $payment['gateway_charge_id']
+                                        // );
                                     }
                                     ?>
                                 <?php endif; ?>
@@ -837,22 +883,41 @@
                             <td class="capture-td">
                                 <?php if(isset($payment['payment_gateway_used'])) { ?>
                                     <?php if($payment['is_captured']==0 && $company['manual_payment_capture']==1){ ?>
-                                        <span><?= ($payment['payment_status'] == 'refund' && $payment['is_captured'] == 0) ? 'Canceled' : 'Authorized' ?></span>
+                                        <span><?php 
+                                         if($payment['payment_status'] == 'refund' && $payment['is_captured'] == 0){
+                                             echo 'Canceled';
+                                         }
+                                        elseif($payment['payment_status'] == 'void' && $payment['is_captured'] == 0){
+                                           echo 'Voided';
+                                        }else{
+                                            echo 'Authorized';
+                                        }
+                                        ?>
+                                    
+                                    </span>
                                         <?php if($payment['is_captured']==0 && $payment['read_only']==1) { ?>
                                             <div class="payment_status_buttons">
                                                 <button class="btn btn-primary delete-payment not-allowed" data-toggle="tooltip" title="Refund" disabled><i class="fa fa-reply" aria-hidden="true"></i></button>
-                                                <button class="btn btn-danger capture-payment-button hidden-print not-allowed" disabled>
+                                                <button class="btn btn-success capture-payment-button hidden-print not-allowed" disabled>
                                                     <i class="fa fa-credit-card" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         <?php } else { ?>
                                             <div class="payment_status_buttons">
-                                                <button class="btn btn-primary delete-payment" data-toggle="tooltip" title="Refund"><i class="fa fa-reply" aria-hidden="true"></i></button>
-                                                <button class="btn btn-danger  capture-payment-modal hidden-print" data-toggle="tooltip" title="Capture"  data-capture-payment-type="<?= $payment['payment_type'] ?>" data-capture-authorize-id="<?= $payment['gateway_charge_id'] ?>"  data-customer-id="<?= $booking_customer['customer_id'] ?>" data-booking-id="<?= $this->uri->segment(3) ?>">
+                                                <?php 
+                                                if($payment['payment_type'] == 'nexio'){ ?>
+                                                    <button class="btn btn-danger void-payment" data-toggle="tooltip" title="void">
+                                                        <i class="fa fa-ban" aria-hidden="true"></i></button>
+
+                                                <?php }else{ ?>
+                                                    <button class="btn btn-primary delete-payment" data-toggle="tooltip" title="Refund"><i class="fa fa-reply" aria-hidden="true"></i></button>
+
+                                               <?php }  ?>
+                                                <button class="btn btn-success  capture-payment-modal hidden-print" data-toggle="tooltip" title="Capture"  data-capture-payment-type="<?= $payment['payment_type'] ?>" data-capture-authorize-id="<?= $payment['gateway_charge_id'] ?>"  data-customer-id="<?= $booking_customer['customer_id'] ?>" data-booking-id="<?= $this->uri->segment(3) ?>">
                                                     <i class="fa fa-credit-card" aria-hidden="true"></i>
                                                 </button>
                                             </div>
-                                        <?php } ?>
+                                        <?php }?>
                                         <span class="visible-print-block"><?php echo l('Authorized', true); ?></span>
                                     <?php } else { ?>
                                         <span><?php echo ($payment['payment_status'] == 'charge') ? l('Captured', true) : ($payment['payment_status'] == 'payment_link' ? l('Pending', true) : l('Refunded', true)); ?></span>
@@ -861,7 +926,7 @@
                                                 <button class="btn btn-primary hidden-print delete-payment" data-toggle="tooltip" title="Refund"  title="Created by <?php echo $payment['user_name']; ?>">
                                                     <i class="fa fa-reply" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger capture-payment-button hidden-print not-allowed" disabled>
+                                                <button type="button" class="btn btn-success capture-payment-button hidden-print not-allowed" disabled>
                                                     <i class="fa fa-credit-card" aria-hidden="true"></i>
                                                 </button>
                                             <?php } else if($menu_on === true && $payment['payment_link_id']) { ?>
@@ -873,7 +938,7 @@
                                                 <button class="btn btn-primary delete-payment hidden-print not-allowed" data-toggle="tooltip" title="Refund" disabled>
                                                     <i class="fa fa-reply" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger capture-payment-button hidden-print not-allowed" data-toggle="tooltip" title="Capture" disabled>
+                                                <button type="button" class="btn btn-success capture-payment-button hidden-print not-allowed" data-toggle="tooltip" title="Capture" disabled>
                                                     <i class="fa fa-credit-card" aria-hidden="true"></i>
                                                 </button>
                                             <?php } ?>
@@ -955,6 +1020,7 @@
                 </tr>
                 </tfoot>
             </table>
+            </div>
 
         </div> <!-- /.panel -->
         <div class="h2 text-muted" style="max-width: 100%; padding: 10px;">
@@ -982,6 +1048,7 @@
 
             <div class="jumbotron col-md-6 col-xs-12">
                 <h4><?php echo l('invoice').' '.l('log'); ?></h4>
+                <div class="table-responsive">
                 <table class="table">
                     <?php
                     foreach ($invoice_log as $r):
@@ -1003,6 +1070,7 @@
                     ?>
 
                 </table>
+                </div>
             </div>  <!-- /. container.. -->
 
             <div class="col-md-3">

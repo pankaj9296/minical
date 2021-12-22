@@ -62,7 +62,7 @@
                 </div>
             </div>
 
-            <div class="form-group features-div-padding ">
+            <div class="form-group features-div-padding form-inline ">
                 <div class="checkbox checbox-switch switch-primary">
                     <label>
                         <input type="checkbox" name="send_copy_to_additional_emails"
@@ -70,9 +70,31 @@
                         <span></span>
                     </label>
                     <label for="additional_company_emails"><b><?= l("Send copy of confirmation email and invoice email to this address", true); ?></b></label>
-                    <input type="text" name="additional_company_emails"
+                    <input type="text" class="form-control" name="additional_company_emails"
                            value="<?php echo $company_data['additional_company_emails']; ?>" size=50
                            placeholder="<?php echo l('comma separated email addresses', true) ?>"/>
+                </div>
+            </div>
+
+            <div class="form-group features-div-padding ">
+                <div class="checkbox checbox-switch switch-primary">
+                    <label>
+                        <input type="checkbox" name="email_confirmation_for_ota_reservations"
+                               <?= $company_data['email_confirmation_for_ota_reservations'] == 1 ? 'checked=checked' : ''; ?>/>
+                        <span></span>
+                    </label>
+                    <label for="email_confirmation_for_ota_reservations"><b><?= l("Do not send email confirmation for OTA reservations", true); ?></b></label>
+                </div>
+            </div>
+
+            <div class="form-group features-div-padding ">
+                <div class="checkbox checbox-switch switch-primary">
+                    <label>
+                        <input type="checkbox" name="email_cancellation_for_ota_reservations"
+                               <?= $company_data['email_cancellation_for_ota_reservations'] == 1 ? 'checked=checked' : ''; ?>/>
+                        <span></span>
+                    </label>
+                    <label for="email_cancellation_for_ota_reservations"><b><?= l("Do not send email cancellation for OTA reservations", true); ?></b></label>
                 </div>
             </div>
 
@@ -127,6 +149,34 @@
                         <span></span>
                     </label>
                     <label for="make_guest_field_mandatory"><b><?= l("Make guest field required when creating bookings", true); ?></b></label>
+                </div>
+            </div>
+
+
+            <div class="form-group features-div-padding ">
+                <div class="checkbox checbox-switch switch-primary">
+                 <label>
+                        <input type="checkbox" name="book_over_unconfirmed_reservations"
+                               <?= $company_data['book_over_unconfirmed_reservations'] == 1 ? 'checked=checked' : ''; ?>/>
+                        <span></span>
+                    </label>
+                    <label for="book_over_unconfirmed_reservations"><b><?= l("Allow an online reservation in a room with an unconfirmed reservation", true); ?></b></label>
+                </div>
+            </div>
+
+
+             <div class="form-group features-div-padding ">
+                <div class="checkbox checbox-switch switch-primary">
+                    <label>
+                        <input type="checkbox" name="allow_non_continuous_bookings"
+                               <?= $company_data['allow_non_continuous_bookings'] == 1 ? 'checked=checked' : ''; ?>/>
+                        <span></span>
+                    </label>
+                    <label for="allow_non_continuous_bookings"><b><?= l("Allow OTA bookings with non-continuous rooms/blocks", true); ?></b></label>
+                    <br/>
+                    <div class="form-group features-div-padding  form-inline max-number-blocks">
+                        <?= l("Maximum number of blocks:", true); ?> <input type="text" class="form-control" name="maximum_no_of_blocks" value="<?php echo $company_data['maximum_no_of_blocks']; ?>" size=10/>
+                    </div>
                 </div>
             </div>
 
@@ -564,6 +614,20 @@
                 </div>
             </div>
 
+
+
+            <div class="form-group features-div-padding ">
+                <div class="checkbox checbox-switch switch-primary">
+                   <label>
+                        <input type="checkbox" name="customer_modify_booking"
+                               <?= $company_data['customer_modify_booking'] == 1 ? 'checked=checked' : ''; ?>/>
+                        <span></span>
+                    </label>
+                    <label for="customer_modify_booking"><b><?= l("Allow customers to modify their booking", true); ?></b></label>
+                </div>
+            </div>
+
+
             <div class="form-group features-div-padding ">
                 <div class="checkbox checbox-switch switch-primary">
                     <label>
@@ -654,6 +718,25 @@
                 <b><?php echo l('INVOICE', true); ?></b></h4></div>
         <div style="padding-top:10px">
 
+            <div class="form-group features-div-padding  form-inline">
+                <label for="payment_capture">
+                    <?= l("Payment Capture", true); ?>
+                </label>
+                <select class="form-control" name="payment_capture" id="payment_capture">
+                    <option value="0" <?php if ($company_data['manual_payment_capture'] == 0) {
+                        echo 'selected = "selected"';
+                    } ?>><?php echo l('Instant', true); ?>
+                    </option>
+                    <option value="1" <?php if ($company_data['manual_payment_capture'] == 1) {
+                        echo 'selected = "selected"';
+                    } ?>><?php echo l('Manual', true); ?>
+                    </option>
+                </select>
+               
+            </div>
+
+           
+
             <div class="form-group features-div-padding ">
                 <div class="checkbox checbox-switch switch-primary">
                     <label>
@@ -714,7 +797,7 @@
             </div>
 
 
-            <div class="form-group features-div-padding ">
+            <!-- <div class="form-group features-div-padding ">
                 <div class="checkbox checbox-switch switch-primary">
                     <label>
                         <input type="checkbox" name="enable_new_calendar"
@@ -723,13 +806,13 @@
                     </label>
                     <label for="enable_new_calendar"><b><?= l("Enable new calendar UI (with hourly calendar support)", true); ?></b></label>
                 </div>
-            </div>
+            </div> -->
 
             <div class="form-group features-div-padding  form-inline">
 
                 <label for="default_charge_name"><?= l("Default charge name", true); ?></label>
 
-                <input type="text" name="default_charge_name"
+                <input type="text" name="default_charge_name" class="form-control"
                        value="<?php echo $company_data['default_charge_name']; ?>" size=50
                        placeholder="<?php echo l('Default charge name', true); ?>"/>
             </div>
@@ -737,17 +820,17 @@
             <div class="form-group features-div-padding  form-inline">
                 <label for="default_room_singular"><?= l("Default room label", true); ?></label>
                 <span>: (<?php echo l('singular', true); ?>)</span>
-                <input type="text" name="default_room_singular"
+                <input type="text" name="default_room_singular" class="form-control"
                        value="<?php echo $company_data['default_room_singular']; ?>" size=15
                        placeholder="<?php echo l('Room', true); ?>"/>
                 <span>, (<?php echo l('plural', true); ?>)</span>
-                <input type="text" name="default_room_plural"
+                <input type="text" name="default_room_plural" class="form-control"
                        value="<?php echo $company_data['default_room_plural']; ?>" size=15
                        placeholder="<?php echo l('Rooms', true); ?>"/>
             </div>
             <div class="form-group features-div-padding  form-inline">
                 <label for="default_room_type"><?= l("Default room type label", true); ?></label>
-                <input type="text" name="default_room_type" value="<?php echo $company_data['default_room_type']; ?>"
+                <input type="text" name="default_room_type" class="form-control" value="<?php echo $company_data['default_room_type']; ?>"
                        size=50 placeholder="<?php echo l('Room type', true); ?>"/>
             </div>
 

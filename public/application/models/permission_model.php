@@ -42,6 +42,13 @@ class Permission_model extends CI_Model {
                 (
                     $function_name === 'channex_get_bookings'
                 )
+            ) ||
+
+            (
+                $controller_name === "nexio_integration" && 
+                (
+                    $function_name === 'forward_encrypt_card'
+                )
             )
 
         ) {
@@ -106,6 +113,12 @@ class Permission_model extends CI_Model {
                 ) ||
                 // channel manager update
                 $controller_name === "channel_manager"
+                ||
+                ($controller_name === "settings" &&
+                    (
+                        $function_name == "show_booking_list"
+                    )
+                )
 
             ) {
                 return true;
@@ -254,6 +267,11 @@ class Permission_model extends CI_Model {
 							$function_name == 'update_notes_AJAX' || $function_name == 'set_rooms_clean'
 						)
                     )
+                )
+                ||
+                (
+                    $permission == 'access_to_extensions' && 
+                    ($controller_name == 'extensions' || $this->router->fetch_module() != '')
                 )
             )
             {
@@ -437,7 +455,7 @@ class Permission_model extends CI_Model {
             return true;
         }
         $permissions = $this->session->userdata("permissions");
-        $is_salesperson = in_array("is_salesperson", $permissions) ? 1 : 0;
+        $is_salesperson = is_array($permissions) && in_array("is_salesperson", $permissions) ? 1 : 0;
         $sql = "SELECT 
                     'is_admin' as permission
                 FROM user_permissions as up
@@ -506,10 +524,16 @@ class Permission_model extends CI_Model {
         return $results;
     }
 
-    function is_extension_active($extension_name, $company_id)
+    function is_extension_active($extension_name, $company_id, $is_array = false)
     {
         $this->db->from('extensions_x_company');
-        $this->db->where('extension_name', $extension_name);
+
+        if($is_array){
+            $this->db->where_in('extension_name', $extension_name);
+        } else {
+            $this->db->where('extension_name', $extension_name);
+        }
+
         $this->db->where('company_id', $company_id);
         $this->db->where('is_active', 1);
         
@@ -517,9 +541,19 @@ class Permission_model extends CI_Model {
 
         if ($query->num_rows >= 1)
         {
-            return true;
+            if($is_array){
+                $result_array = $query->result_array();
+                return $result_array;
+            } else {
+                return true;
+            }
         }
-        return false;
+
+        if($is_array){
+            return null;
+        } else {
+            return false;
+        }
     }
 
 

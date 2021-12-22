@@ -31,10 +31,10 @@
 				<div class="form-group">
 			  		<?php echo l('from'); ?>
 					
-					<input type="text" class="form-control datepicker" id="dateStart" value="<?php echo $start_date; ?>" style="width:100px;" />
+					<input type="text" class="form-control datepicker form-001" id="dateStart" value="<?php echo $start_date; ?>" style="width:100px;" />
 					<?php echo l('to'); ?>
-					<input type="text" class="form-control datepicker" id="dateEnd" value="<?php echo $end_date; ?>" style="width:100px;"/>
-					<select class="form-control" id="groupBy">
+					<input type="text" class="form-control datepicker form-001" id="dateEnd" value="<?php echo $end_date; ?>" style="width:100px;"/>
+					<select class="form-control form-001" id="groupBy">
 						<option value="daily">
 							<?php echo l('daily'); ?>
 						</option>
@@ -43,7 +43,7 @@
 						</option>
 					</select>
                     <?php echo l('Customer Type', true); ?>
-                    <select class="form-control" name="customer_type_id">
+                    <select class="form-control form-001" name="customer_type_id">
 					<option value=''><?php echo l('All', true); ?></option>
 					<?php
 						foreach ($customer_types as $customer_type):
@@ -78,7 +78,7 @@
 	<div class="visible-print-block">
 			<?php echo l('showing_data_between'); ?> <span id="dateStartPrint"><?php echo $start_date; ?></span> and <span id="dateEndPrint"><?php echo $end_date; ?></span>
 	</div>
-
+	<div class="table-responsive">
 	<table class="table table-hover">
 		<thead>
 			<tr>
@@ -118,6 +118,6 @@
 			</tr>
 		</tfoot>
 	</table>
-
+	</div>
 	<!--<a href="<?php echo base_url()."report/download_monthly_report_csv_export/$date.csv"; ?>">Download CSV Export</a>-->
 </div></div></div>

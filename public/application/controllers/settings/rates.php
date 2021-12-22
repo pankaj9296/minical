@@ -1305,10 +1305,12 @@ class Rates extends MY_Controller
                 break;
             }
 
+            $extra_rate = $this->security->xss_clean($updated_extra['default_rate']);
 			$rate_data = array(
-				'rate' => $this->security->xss_clean($updated_extra['default_rate']),
+				'rate' => ($extra_rate != '' && $extra_rate >= 0) ? trim(number_format($extra_rate, 2, ".", ",")) : 0,
 				'currency_id' => $default_currency['currency_id']
 			);
+
 			$this->Rate_model->update_extra_rate($extra_field_id, $rate_data);
 
         }
@@ -1340,7 +1342,7 @@ class Rates extends MY_Controller
                     );
                     break;
                 }
-				$this->_create_rate_plan_log("Update Room Type ( [ID {$extra_id}])");
+				$this->_create_rate_plan_log("Update Room Type ( [ID {$room_type_id}])");
             }
         }
         echo json_encode($response);

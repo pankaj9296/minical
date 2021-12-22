@@ -21,6 +21,8 @@ class Booking extends MY_Controller
         $this->load->model('Room_type_model');
         $this->load->model('Room_model');
         $this->load->model('Charge_type_model');
+        $this->load->model('Floor_model');
+        $this->load->model('Room_location_model');
         $this->load->model('Charge_model');
         $this->load->model('Rate_plan_model');
         $this->load->model('Booking_source_model');
@@ -178,6 +180,10 @@ class Booking extends MY_Controller
         }
 
         $data['room_types'] =  $this->Room_type_model->get_room_types($this->company_id);
+
+        $data['room_floor'] =  $this->Floor_model->get_floor($this->company_id);
+
+        $data['room_location'] =  $this->Room_location_model->get_room_location($this->company_id);
 
         $data['company_data'] =  $company_data;
 
@@ -1335,6 +1341,12 @@ class Booking extends MY_Controller
                         'customer_name' => $paying_customer['customer_name']
                     )
                 );
+
+                $post_customer_data = $paying_customer;
+                $post_customer_data['customer_id'] = $paying_customer_id;
+
+                do_action('post.create.customer', $post_customer_data);
+
                 $booking_data['booking_customer_id'] = $paying_customer_id;
             }
         } else {
@@ -1422,6 +1434,11 @@ class Booking extends MY_Controller
         $rate_plan = $rate_array = array();
         $booking_id = $this->Booking_model->create_booking($booking_data);
 
+        $post_booking_data = $booking_data;
+        $post_booking_data['booking_id'] = $booking_id;
+
+      
+
         $response = array();
 
         if(isset($booking_data['use_rate_plan']) && $booking_data['use_rate_plan'])
@@ -1481,6 +1498,11 @@ class Booking extends MY_Controller
             $rate_plan_id = $this->Rate_plan_model->create_rate_plan($rate_plan);
             $this->Booking_model->update_booking($booking_id, array('rate_plan_id' => $rate_plan_id));
 
+            $post_booking_data = array('rate_plan_id' => $rate_plan_id);
+            $post_booking_data['booking_id'] = $booking_id;
+
+            do_action('post.update.booking', $post_booking_data);
+
             $response['rate_plan_id'] = $rate_plan_id;
             $response['rate_plan_name'] = $rate_plan['rate_plan_name'];
 
@@ -1531,6 +1553,12 @@ class Booking extends MY_Controller
             )
         );
 
+        $post_booking_data['check_in_date'] =  $room['check_in_date'];
+        $post_booking_data['check_out_date'] = $room['check_out_date'];
+        $post_booking_data['room_id'] = $room['room_id'];
+        $post_booking_data['room_type_id'] =  $room['room_type_id'];
+        do_action('post.create.booking', $post_booking_data);
+
         if (isset($customer_data['staying_customers'])) {
             $staying_customers = $customer_data['staying_customers'];
             $staying_customer_ids = Array();
@@ -1544,6 +1572,12 @@ class Booking extends MY_Controller
                             'customer_name' => $customer['customer_name']
                         )
                     );
+
+                    $post_customer_data = $customer;
+                    $post_customer_data['customer_id'] = $staying_customer_id;
+
+                    do_action('post.create.customer', $post_customer_data);
+
                     $staying_customer_ids[] = $staying_customer_id;
                 }
             }
@@ -1584,6 +1618,10 @@ class Booking extends MY_Controller
             $booking_batch[$i] = $booking_data;
         }
         $booking_ids = $this->Booking_model->insert_booking_batch($booking_batch);
+
+        $post_booking_batch_data = $booking_batch;
+        $post_booking_batch_data['booking_ids'] = $booking_ids;
+
         $booking_history_batch = array();
 
         for ($i = 0; $i < $room['room_count']; $i++) {
@@ -1599,6 +1637,10 @@ class Booking extends MY_Controller
         }
 
         $this->Booking_room_history_model->insert_booking_room_history_batch($booking_history_batch);
+        $post_booking_data['group_booking'] = $booking_history_batch;
+
+        do_action('post.create.booking', $post_booking_batch_data);
+
 
         //Create a corresponding invoice
         $this->Invoice_model->create_batch_invoice($booking_ids);
@@ -1617,6 +1659,12 @@ class Booking extends MY_Controller
                             'customer_name' => $customer['customer_name']
                         )
                     );
+
+                    $post_customer_data = $customer;
+                    $post_customer_data['customer_id'] = $staying_customer_id;
+
+                    do_action('post.create.customer', $post_customer_data);
+
                     $staying_customer_ids[] = $staying_customer_id;
                 }
             }
@@ -1697,6 +1745,13 @@ class Booking extends MY_Controller
             $booking['state'] = $new_data['booking']['state'];
             // update booking data
             $this->Booking_model->update_booking($booking_id, $booking);
+
+            $post_booking_data = $booking;
+            $post_booking_data['booking_id'] = $booking_id;
+
+            do_action('post.update.booking', $post_booking_data);
+
+
             $this->_create_booking_log($booking_id, "Booking cancelled");
             if(isset($this->automatic_email_cancellation) && $this->automatic_email_cancellation) {
                 $this->send_booking_cancellation_email($booking_id);
@@ -1917,6 +1972,12 @@ class Booking extends MY_Controller
                             'customer_name' => $paying_customer['customer_name']
                         )
                     );
+
+                    $post_customer_data = $paying_customer;
+                    $post_customer_data['customer_id'] = $paying_customer_id;
+
+                    do_action('post.create.customer', $post_customer_data);
+
                     $new_data['booking']['booking_customer_id'] = $paying_customer_id;
                 }
             } else {
@@ -1939,6 +2000,12 @@ class Booking extends MY_Controller
                                 'customer_name' => $customer['customer_name']
                             )
                         );
+
+                        $post_customer_data = $customer;
+                        $post_customer_data['customer_id'] = $staying_customer_id;
+
+                        do_action('post.create.customer', $post_customer_data);
+
                         $staying_customer_ids[] = $staying_customer_id;
                     }
                 }
@@ -2107,6 +2174,9 @@ class Booking extends MY_Controller
                 // update booking data
                 $this->Booking_model->update_booking($booking_id, $booking);
 
+                $post_booking_data = $booking;
+                $post_booking_data['booking_id'] = $booking_id;
+
                 $block = array(
                     "booking_id" => $booking_id,
                     "check_in_date" => $room['check_in_date'],
@@ -2166,6 +2236,13 @@ class Booking extends MY_Controller
                                 $new_booking_block['check_in_date'] = $this->selling_date;
                                 $new_booking_block['check_out_date'] = $block['check_out_date'];
                                 $this->Booking_room_history_model->create_booking_room_history($new_booking_block);
+
+                                
+                                $post_booking_data['room_id'] = $new_room_id;;
+                                $post_booking_data['room_type_id'] = $block['room_type_id'];
+                                $post_booking_data['check_in_date'] = $this->selling_date;
+                                $post_booking_data['check_out_date'] = $block['check_out_date'];
+                                do_action('post.update.booking', $post_booking_data);
                             }
                             else
                             {
@@ -2235,6 +2312,11 @@ class Booking extends MY_Controller
                         'is_night_audit_charge' => 1
                     );
                     $this->Charge_model->insert_charges($this->company_id, $charge_data);
+
+                    $post_charge_data = $charge_data;
+                    $post_charge_data['company_id'] = $this->company_id;
+
+                    do_action('post.create.charge', $post_charge_data);
                 }
             }
         }
@@ -2440,6 +2522,21 @@ class Booking extends MY_Controller
     function _validate_booking_data($new_data, $old_data = '', $booking_id = '', $company_detail = array()) {
         $errors = array();
 
+        if(isset($new_data['custom_booking_fields']) && $new_data['custom_booking_fields']) {
+            $booking_fields = $this->Booking_field_model->get_booking_fields($this->company_id);
+
+            foreach ($booking_fields as $key => $value) {
+                foreach ($new_data['custom_booking_fields'] as $key1 => $value1) {
+                    if($value1['id'] == $value['id'] && $value['is_required'] == '1') {
+                        if($value1['value'] == '')
+                        {
+                            $errors[] = $value['name'].' field is required';
+                        }
+                    }
+                }
+            }
+        }
+
         if (isset($new_data['rooms'][0]['check_in_date'])) {
             if (!$this->_is_valid_date($new_data['rooms'][0]['check_in_date'])) {
                 $errors[] = l('check-in date must be in a valid format', true)." (YYYY-MM-DD)";
@@ -2561,6 +2658,10 @@ class Booking extends MY_Controller
             }
         }
         $this->Booking_model->delete_booking($booking_id);
+
+        $post_booking_data['booking_id'] = $booking_id;
+        do_action('post.delete.booking', $post_booking_data);
+
         $this->_create_booking_log($booking_id, "Booking deleted");
 
         echo json_encode(array('response' => 'success'));
@@ -2580,6 +2681,12 @@ class Booking extends MY_Controller
                 'user_id' => $this->user_id
             );
             $this->Charge_model->insert_charges($this->company_id, $charges);
+
+            $post_charge_data = $charges;
+            $post_charge_data['company_id'] = $this->company_id;
+
+            do_action('post.create.charge', $post_charge_data);
+            
             $charge_rate = $this->Charge_type_model->get_taxes($invoice_array[$i]['charge_type_id']);
             for ($j = 0; $j < count($charge_rate); $j++) {
                 $tax_amount += number_format(($invoice_array[$i]['amount'] * $charge_rate[$j]['tax_rate']) / 100, 2);
@@ -2987,6 +3094,11 @@ class Booking extends MY_Controller
         if($status == 'cancel') {
             $update_data = array('state' => CANCELLED);
             $this->Booking_model->update_booking($booking_id, $update_data);
+
+            $post_booking_data = $update_data;
+            $post_booking_data['booking_id'] = $booking_id;
+
+            do_action('post.update.booking', $post_booking_data);
             
             $this->_create_booking_log(
                                         $booking_id,
@@ -3030,6 +3142,14 @@ class Booking extends MY_Controller
                 $this->Booking_room_history_model->update_check_out_date($brh_data, $check_out_date);
             }
             
+            $post_booking_data['booking_id'] = $booking_id;
+            $post_booking_data['room_id'] = $room_id;
+            $post_booking_data['check_in_date'] = $check_in_date;
+            $post_booking_data['check_out_date'] = $check_out_date;
+
+            do_action('post.update.booking', $post_booking_data);
+            
+
             $return_type = $session_data['is_total_balance_include_forecast'] ? 'balance' : 'balance_without_forecast';
             $balance = $this->Booking_model->update_booking_balance($booking_id, $return_type);
 
@@ -3077,6 +3197,35 @@ class Booking extends MY_Controller
     {
         $result = $this->Booking_field_model->get_booking_fields($this->company_id, 'show_on_booking_form');
         echo json_encode($result);
+    }
+
+    function delete_booking_extra_AJAX() {
+
+        $booking_extra_id = $this->input->post('booking_extra_id');
+
+        $booking_extra = $this->Booking_extra_model->get_booking_extra($booking_extra_id); // get extra by booking extra id 
+
+        //$this->Booking_extra_model->delete_booking_extra($booking_extra_id);
+        $data = array('is_deleted'=>1);
+        $this->Booking_extra_model->update_booking_extra($booking_extra_id, $data);
+
+        $balance = $this->Booking_model->update_booking_balance($booking_extra->booking_id);
+
+        if($booking_extra_id)
+        {
+
+            $log = array(
+                "booking_id" => $booking_extra->booking_id,
+                "date_time" => gmdate('Y-m-d H:i:s'),
+                "log_type" => 25,
+                "log" => $booking_extra_id,
+                "user_id" => $this->user_id,
+                "selling_date" => $this->selling_date
+            );
+            $this->Booking_log_model->insert_log($log);
+        }
+        $response = array("message" => l("extra successfully deleted", true), 'balance' => $balance);
+        echo json_encode($response);
     }
 
 

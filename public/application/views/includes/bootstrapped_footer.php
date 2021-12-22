@@ -89,6 +89,7 @@
     innGrid.featureSettings.bookingCancelledWithBalance = parseInt('<?=(isset($this->booking_cancelled_with_balance) ? $this->booking_cancelled_with_balance : 0)?>');
     innGrid.isCCVisualizationEnabled = parseInt('<?=(($this->is_cc_visualization_enabled) ? 1 : 0)?>');
     innGrid.isAsaasPaymentEnabled = parseInt('<?=(($this->selected_payment_gateway == "asaas") ? 1 : 0)?>');
+    innGrid.isChannePCIEnabled = parseInt('<?=(($this->is_channex_pci_enabled) ? 1 : 0)?>');
     innGrid.featureSettings.cuurentLanguage = "<?=$this->session->userdata('language') ? $this->session->userdata('language') : ''?>";
     innGrid.imageUrl = "<?= $this->image_url; ?>";
 
@@ -105,20 +106,6 @@
         return language[key] || (language[key.toString().toLowerCase()] || '');
     }
 </script>
-
-<div style="display: none">
-    <?php
-    echo "<br/>";
-    print_r($this->all_translations_data);
-    echo "<br/>";
-    print_r(isset($this->all_translations_data) ? $this->all_translations_data : array());
-    echo "<br/>";
-    print_r(json_encode(isset($this->all_translations_data) ? $this->all_translations_data : array()));
-    echo "<br/>";
-    print_r(addslashes(json_encode(isset($this->all_translations_data) ? $this->all_translations_data : array())));
-    echo "<br/>";
-    ?>
-</div>
 
 <script>
     <!-- Below script used for language translation  -->

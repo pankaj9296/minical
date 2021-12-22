@@ -7,6 +7,15 @@ class Booking_model extends CI_Model {
         parent::__construct();
         $this->load->library("Forecast_charges");   
     }
+
+    function insert_ota_booking($booking)
+    {     
+        $this->db->insert('ota_bookings', $booking);
+        if ($this->db->_error_message())
+        {
+            show_error($this->db->_error_message());
+        }
+    }
     
     
     function get_latest_bookings($company_id = null)
@@ -873,6 +882,7 @@ class Booking_model extends CI_Model {
                 b.add_daily_charge,
                 b.residual_rate,
                 b.balance,
+                r.room_name,
                 $select_column
                 (
                     SELECT 
@@ -893,6 +903,8 @@ class Booking_model extends CI_Model {
                 
             FROM booking as b
             LEFT JOIN customer as c ON c.customer_id = b.booking_customer_id
+            LEFT JOIN booking_block as bb ON bb.booking_id = b.booking_id
+            LEFT JOIN room as r ON r.room_id = bb.room_id
             $get_booking_review
             WHERE b.booking_id = '$booking_id' 
 
@@ -2510,7 +2522,7 @@ class Booking_model extends CI_Model {
                 LEFT JOIN customer c 
                     ON c.customer_id = b.booking_customer_id
                 LEFT JOIN booking_log bl 
-                    ON bl.booking_id = b.booking_id AND (bl.log = 'Booking created' OR bl.log = 'OTA Booking created' OR bl.log = 'Online reservation submitted')
+                    ON bl.booking_id = b.booking_id AND (bl.log = 'Booking created' OR bl.log = 'OTA Booking created' OR bl.log = 'OTA Booking modified' OR bl.log = 'Online reservation submitted')
                 $booking_log_join
                 LEFT JOIN user_profiles up 
                     ON up.user_id = bl.user_id
@@ -2690,6 +2702,7 @@ class Booking_model extends CI_Model {
                     WHERE 
                     ('$start_date' < (room_history.check_out_date) AND (room_history.check_in_date) < '$end_date') AND 
                     b.`is_deleted` = '0' AND 
+                    b.company_id = '$this->company_id' AND    
                     b.`state` != 4 
                     $room_sql 
                     $booking_sql";

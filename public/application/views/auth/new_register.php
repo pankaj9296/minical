@@ -180,7 +180,7 @@
         var email = $("input[name=email]").val();
         var password = $("input[name=password]").val();
         var accept_tnc = $("input[name=accept_tnc]:checked").val();
-        var url= '<?php  echo 'http://'. $_SERVER['HTTP_HOST'];?>';
+        var url= '<?php  echo 'https://'. $_SERVER['HTTP_HOST'];?>';
 
         if(email == ''){
             alert('The Email field is required.');
@@ -194,8 +194,8 @@
             data: {
                     email: email,
                     password: password,
-                    accept_tnc: accept_tnc,
-                    'g-recaptcha-response': $('#g-recaptcha-response').val()
+                    accept_tnc: accept_tnc
+                    // 'g-recaptcha-response': $('#g-recaptcha-response').val()
                 },
             success: function (data) {
                 if (data == 'success')
@@ -211,7 +211,7 @@
                 {
                     alert(data);
                     $('.register_submit_form').attr('disabled', false).val('Next Step');
-                    grecaptcha.reset()
+                    // grecaptcha.reset()
                 }
             },
             error: function (err) {

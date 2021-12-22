@@ -11,7 +11,7 @@
 </div>
 <div class="main-card card">
 <div class="card-body">
-   <div class="modal fade"  id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal fade m-012"  id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
          <div class="modal-content">
             <div class="modal-header">
@@ -47,7 +47,7 @@
       <h1><?php echo l('room_inventory'); ?></h1>
       <ul class="nav nav-tabs channels">
          <?php foreach($channels as $channel): ?>
-         <li class="channel <?php if($channel['id'] == -1) { echo 'active'; } ?> " data-id="<?php echo $channel['id'];?>">
+         <li class="channel <?php if($channel['id'] == -1) { echo 'active'; } ?> " data-id="<?php echo $channel['id'];?>" data-key="<?php echo isset($channel['key']) && $channel['key'] ? $channel['key'] : '' ;?>">
             <a href="#" ><?php echo $channel['name'];?></a>
          </li>
          <?php endforeach; ?>
@@ -57,9 +57,9 @@
          </li>
       </ul>
       <br>
-      <span disabled class="btn btn-primary modify-availabilities"><?php echo l('modify_maximum_availabilities'); ?></span>
-      <span class="btn btn-default change-dates" data-date-diff="-7"><?php echo l('previous_week'); ?></span>
-      <span class="btn btn-default change-dates" data-date-diff="7"><?php echo l('next_week'); ?></span>
+      <button disabled class="btn btn-primary modify-availabilities m-011"><?php echo l('modify_maximum_availabilities'); ?></button>
+      <span class="btn btn-light change-dates" data-date-diff="-7"><?php echo l('previous_week'); ?></span>
+      <span class="btn btn-light change-dates" data-date-diff="7"><?php echo l('next_week'); ?></span>
       <span id="loading_img" style="display:none;">
       <img src="<?php echo base_url().'images/loading.gif' ?>"  style='width: 2%;'/>
       </span>
@@ -73,6 +73,7 @@
    </style>
    <div id="edit_availabilities_dialog"></div>
    <script id="calendar-temp" type="x-tmpl-mustache">
+   <div class="table-responsive">
       <table class="table" >
           <thead>
               <tr>
@@ -157,5 +158,6 @@
               </tr>
           </tbody>
       </table>
+    </div>  
    </script>
 </div>

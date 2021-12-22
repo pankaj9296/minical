@@ -55,21 +55,25 @@
   </div>
 </div>
 
-<div class="page-header">
-	<h2>
-		<?php echo l('Product Items'); ?> <a href=#
-							class="text-primary h4" 
-							aria-hidden="true" 
-							data-toggle="modal" 
-							data-target="#help-modal"
-						>(<?php echo l('About Products'); ?>)</a>
-	</h2>
-
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-albums text-success"></i>
+            </div>
+            <div>
+            <?php echo l('Product Items'); ?>
+            <a>(<?php echo l('About Products'); ?>)</a>
+            </div>
+        </div>
+    </div>
 </div>
 
+<div class="main-card mb-3 card">
+    <div class="card-body">
 <div id="confirm_delete_dialog"></div>	
-
-<table id="extras-fields" class="table">
+<div class="table-responsive"> 
+<table id="extras-fields" class="table ">
     <tr>
         <th><?php echo l('Product Name'); ?></th>
         <th class="text-center"><?php echo l('charging_scheme'); ?></th>
@@ -82,7 +86,7 @@
         <?php 	foreach($extras as $extra) : ?>
             <tr class="extra-field-tr" id="<?php echo $extra['extra_id']; ?>">
                 <td>
-                    <input name="name" class="form-control" type="text" value="<?php echo $extra['extra_name']; ?>" />
+                    <input name="name" class="form-control" type="text" value="<?php echo $extra['extra_name']; ?>" maxlength="250" />
                 </td>
                 <td class="text-center">
                     <select name="charging-scheme" class="form-control">
@@ -109,7 +113,7 @@
 					</select>
                 </td>
                 <td class="text-center">
-                    <input name="default-rate" type="text" class="form-control"
+                    <input name="default-rate" type="number" min="0" class="form-control"
 					value="<?php
 								if (isset($extra['default_extra_rate']['rate'])) {	
 									echo $extra['default_extra_rate']['rate'];
@@ -142,7 +146,10 @@
         <h3><?php echo l('No products found.', true); ?></h3>
     <?php endif; ?>
 </table>
+    </div>
 
 <br />
 <button id="add_extra" class="btn btn-light"><?php echo l('Add Product'); ?></button>
 <button id="save-all-extras-button" class="btn btn-primary"><?php echo l('save_all'); ?></button>
+    </div>
+    </div>

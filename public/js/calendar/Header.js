@@ -22,9 +22,44 @@ function Header(calendar, options) {
 		if (sections) {
 			element = $("<div/>",
 						{
-							class: "fc-header pad-btn form-inline col-md-12",
+							class: "fc-header pad-btn form-inline col-md-12 m-058",
 							// style:"margin-bottom: 1.0rem;",
 						})
+						.append(
+								$("<div/>", {
+									class: 'btn-group btn-group-toggle btn-calendar-view m-047',
+									style: "float: left; margin-top:10px;margin-right: 10px;",
+									data_toggle: "buttons"										
+
+								})
+								.append(
+									$("<label/>", {
+										class: 'btn btn-primary btn_calendar_view btn_calendar_view_overview '+(innGrid.isOverviewCalendar ? 'active' : ''),
+										'data-view': 'overview', 
+										'data-content':'<strong>'+l("Room Type availability view", true)+'</strong>',
+										'rel':'popover',
+										'data-placement':'bottom',
+										style: "padding: 3px 10px;"
+            						}).append($("<img/>", {
+										src: getBaseURL()+"images/overview.png",
+										style: "width: 29px;"
+									}))
+								)	
+							.append(
+									$(innGrid.enableNewCalendar ? "<a/>" : "<label/>", {
+										href: innGrid.enableNewCalendar ? getBaseURL()+'booking' : null,
+										class: 'btn btn-primary btn_calendar_view '+(innGrid.enableNewCalendar ? '' : ' btn_calendar_view_bookings ')+(innGrid.isOverviewCalendar ? '' : 'active'),
+										'data-view': 'bookings', 						
+										'data-content':'<strong>'+l("Booking calendar view", true)+'</strong>',
+										'rel':'popover',
+										'data-placement':'bottom',
+										style: "padding: 3px 10px;"
+            						}).append($("<img/>", {
+										src: getBaseURL()+"images/calendar.png",
+										style: "width: 29px;"
+									}))
+							)
+						)
 						.append(
 							$("<div/>", {
 								class: "form-group",
@@ -33,7 +68,7 @@ function Header(calendar, options) {
 							.append(
 								$("<div/>",
 								{
-									class: 'btn-group'
+									class: 'btn-group  m-043 m-048'
 								})
 								.append(
 									$("<button/>", {
@@ -91,7 +126,7 @@ function Header(calendar, options) {
                         .append(
 									$("<button/>", {
 										href: '#',
-										class: 'btn btn-light filter-booking',
+										class: 'btn btn-light filter-booking m-046',
 										text: l('More')
 									}).on('click', function() {
 										$('#filter-booking').slideToggle(); 
@@ -119,7 +154,7 @@ function Header(calendar, options) {
 
 	function renderSection(buttonStr) {
 		if (buttonStr) {
-			var tr = $("<div class='form-group' style='margin:10px;'>");
+			var tr = $("<div class='form-group m-045' style='margin:10px;'>");
 			$.each(buttonStr.split(' '), function(i) {
 				if (i > 0) {
 					tr.append("<td><span class='fc-header-space'/></td>");

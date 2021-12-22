@@ -124,6 +124,7 @@ $(function (){
             'automatic_email_cancellation' : $('input[name="automatic_email_cancellation"]').prop('checked') ? 1 : 0,
             'send_booking_notes' : $('input[name="send_booking_notes"]').prop('checked') ? 1 : 0,
             'email_confirmation_for_ota_reservations' : $('input[name="email_confirmation_for_ota_reservations"]').prop('checked') ? 1 : 0,
+            'email_cancellation_for_ota_reservations' : $('input[name="email_cancellation_for_ota_reservations"]').prop('checked') ? 1 : 0,
             'allow_non_continuous_bookings' : $('input[name="allow_non_continuous_bookings"]').prop('checked') ? 1 : 0,
             'maximum_no_of_blocks' : $('input[name="maximum_no_of_blocks"]').val(),
             'make_guest_field_mandatory' : $('input[name="make_guest_field_mandatory"]').prop('checked') ? 1 : 0,
@@ -148,7 +149,7 @@ $(function (){
             'customer_modify_booking' : $('input[name="customer_modify_booking"]').prop('checked') ? 1 : 0,
             'booking_cancelled_with_balance' : $('input[name="booking_cancelled_with_balance"]').prop('checked') ? 1 : 0,
             'hide_room_name' : $('input[name="hide_room_name"]').prop('checked') ? 1 : 0,
-            'enable_new_calendar' : $('input[name="enable_new_calendar"]').prop('checked') ? 1 : 0,
+            'enable_new_calendar' : 1,
             'restrict_booking_dates_modification' : $('input[name="restrict_booking_dates_modification"]').prop('checked') ? 1 : 0,
             'restrict_checkout_with_balance' : $('input[name="restrict_checkout_with_balance"]').prop('checked') ? 1 : 0,
             'show_guest_group_invoice' : $('input[name="show_guest_group_invoice"]').prop('checked') ? 1 : 0

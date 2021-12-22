@@ -85,11 +85,14 @@ if ( ! function_exists('get_languages'))
                 $files_path = $modules_path . $module."/language/".$language_name."/index.php";
                 if(file_exists($files_path))
                 {
+                    $lang = array();
                     require($files_path);
-                    if(isset($lang[$module])){
-                        foreach($lang[$module] as $key => $value)
-                        {
-                            $data_arr[strtolower($module.'/'.$key)] = $value;
+                    if(count($lang) > 0){
+                        foreach ($lang as $m => $v) {
+                            foreach($v as $key => $value)
+                            {
+                                $data_arr[strtolower($m.'/'.$key)] = $value;
+                            }
                         }
                     }
                 }
@@ -98,11 +101,14 @@ if ( ! function_exists('get_languages'))
                     $files_path = $modules_path . $module."/language/english/index.php";
                     if(file_exists($files_path))
                     {
+                        $lang = array();
                         require($files_path);
-                        if(isset($lang[$module])){
-                            foreach($lang[$module] as $key => $value)
-                            {
-                                $data_arr[strtolower($module.'/'.$key)] = $value;
+                        if(count($lang) > 0){
+                            foreach ($lang as $m => $v) {
+                                foreach($v as $key => $value)
+                                {
+                                    $data_arr[strtolower($m.'/'.$key)] = $value;
+                                }
                             }
                         }
                     }
@@ -158,14 +164,6 @@ if ( ! function_exists('get_languages'))
 
         if(!empty($result))
         {
-            $insert_data = array();
-            if((isset($CI->user_id) && $CI->user_id == SUPER_ADMIN_USER_ID) || (!(isset($result[strtolower($phrase_key)]) || $CI->lang->line($phrase_key)))) {
-                if(is_null($CI->translation_model->check_phrase_keyword_with_language($phrase_key, null, true))) {
-                    $insert_data = array('phrase_keyword' => $phrase_key, 'created_at' => date('Y-m-d H:i:s'));
-                    $CI->translation_model->insert_records('language_phrase', $insert_data);
-                }
-            }
-
             if(isset($result[strtolower($phrase_key)]))
             {
                 if($return_plain_text)
@@ -180,6 +178,13 @@ if ( ! function_exists('get_languages'))
             }
             else
             {
+                // if((isset($CI->user_id) && $CI->user_id == SUPER_ADMIN_USER_ID) || (!(isset($result[strtolower($phrase_key)]) || $CI->lang->line($phrase_key)))) {
+                //     if(is_null($CI->translation_model->check_phrase_keyword_with_language($phrase_key, null, true))) {
+                //         $insert_data = array('phrase_keyword' => $phrase_key, 'created_at' => date('Y-m-d H:i:s'));
+                //         $CI->translation_model->insert_records('language_phrase', $insert_data);
+                //     }
+                // }
+
                 if($return_plain_text)
                 {
                     $line = ($CI->lang->line($phrase_key)) ? $CI->lang->line($phrase_key) : $phrase_key;
