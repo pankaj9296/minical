@@ -692,6 +692,9 @@ class Auth extends MY_Controller
     function _send_new_user_alert_email($data)
     {
 
+        $whitelabelinfo = $this->session->userdata('white_label_information');
+
+        $email_from = $whitelabelinfo && isset($whitelabelinfo['do_not_reply_email']) && $whitelabelinfo['do_not_reply_email'] ? $whitelabelinfo['do_not_reply_email'] : 'donotreply@minical.io';
 
         // Send welcome email
         if (
@@ -701,7 +704,7 @@ class Auth extends MY_Controller
 
             // alert support@minical.io about this new user that registered
             $this->load->library('email');
-            $this->email->from("donotreply@minical.io");
+            $this->email->from($email_from);
             $this->email->to("sales@minical.io");
             $this->email->subject("New user alert");
             $this->email->message("company name: ".$data['name']
@@ -853,8 +856,23 @@ class Auth extends MY_Controller
             $this->User_model->add_user_permission($company_id, $data['user_id'], 'is_admin');
         }
 
-        if($this->User_model->get_users_count() == 1 && $data['email'] != SUPER_ADMIN){
+        if($this->User_model->get_users_count() == 1 && isset($data['email']) && $data['email'] != SUPER_ADMIN){
             $this->User_model->add_user_permission($company_id, $data['user_id'], 'is_admin');
+
+            $is_hosted_prod_service = getenv('IS_HOSTED_PROD_SERVICE');
+
+            if(
+                !$is_hosted_prod_service && 
+                $_SERVER['HTTP_HOST'] != "app.minical.io" && 
+                $_SERVER['HTTP_HOST'] != "demo.minical.io"
+            ){
+                $partner_x_admin_data = array(
+                                            'partner_id' => $company_data['partner_id'], 
+                                            'admin_id' => $data['user_id']
+                                        );
+                $this->Whitelabel_partner_model->add_whitelabel_partner_x_admin($partner_x_admin_data);
+            }
+
         }
 
          // support@minical.io will have admin permission
@@ -1654,11 +1672,14 @@ class Auth extends MY_Controller
      */
     function _check_max_rooms($number_of_rooms)
     {
+        $whitelabelinfo = $this->session->userdata('white_label_information');
+        $reply_to_email = $whitelabelinfo && isset($whitelabelinfo['support_email']) && $whitelabelinfo['support_email'] ? $whitelabelinfo['support_email'] : 'support@minical.io';
+
         if ($number_of_rooms > 500) {
             $this->form_validation->set_message(
                 '_check_max_rooms',
                 'Your property is larger than what we typically see.<br />
-					To sign up, please contact us at support@minical.io'
+					To sign up, please contact us at '.$reply_to_email,
             );
 
             return false;
@@ -1700,6 +1721,9 @@ class Auth extends MY_Controller
 
     public function get_subscription_state_extended()
     {
+
+        $whitelabelinfo = $this->session->userdata('white_label_information');
+        $reply_to_email = $whitelabelinfo && isset($whitelabelinfo['support_email']) && $whitelabelinfo['support_email'] ? $whitelabelinfo['support_email'] : 'support@minical.io';
         $this->load->library('Chargify_wrapper');
         $subscription = null;
         $response     = array(
@@ -1727,7 +1751,7 @@ class Auth extends MY_Controller
                     $response = array(
                         'is_blocking' => 0,
                         'message'     => 'Your account payment is past due. '.($is_manual
-                                ? 'Please contact support@minical.io. '
+                                ? 'Please contact '.$reply_to_email
                                 : 'Please update your payment details. '),
                         'show_link'   => 1,
                         'state'       => $subscription['subscription_state']
@@ -1737,7 +1761,7 @@ class Auth extends MY_Controller
                     $response = array(
                         'is_blocking' => 0,
                         'message'     => 'Thank you for trying minical! To set up your recurring subscription '.($is_manual
-                                ? 'please contact support@minical.io. '
+                                ? 'please contact '.$reply_to_email
                                 : 'please update your payment details. '),
                         'show_link'   => 1,
                         'state'       => $subscription['subscription_state']
@@ -1747,7 +1771,7 @@ class Auth extends MY_Controller
                     $response = array(
                         'is_blocking' => 1,
                         'message'     => 'Your account is about to be suspended. '.($is_manual
-                                ? 'Please contact support@minical.io. '
+                                ? 'Please contact '.$reply_to_email
                                 : 'Please update your payment details. '),
                         'show_link'   => $is_manual ? 0 : 1,
                         'state'       => $subscription['subscription_state']
@@ -1756,7 +1780,7 @@ class Auth extends MY_Controller
                 case 'suspended':
                     $response = array(
                         'is_blocking' => 1,
-                        'message'     => 'Your account was suspended <br/> For more information please contact support@minical.io.',
+                        'message'     => 'Your account was suspended <br/> For more information please contact '.$reply_to_email,
                         'show_link'   => 0,
                         'state'       => $subscription['subscription_state']
                     );
@@ -1789,6 +1813,9 @@ class Auth extends MY_Controller
 
     function thank_you()
     {
+        $whitelabelinfo = $this->session->userdata('white_label_information');
+        $data['support_email'] = $whitelabelinfo && isset($whitelabelinfo['support_email']) && $whitelabelinfo['support_email'] ? $whitelabelinfo['support_email'] : 'support@minical.io';
+       
         $data['menu_on'] = FALSE;
         $data['main_content'] = 'auth/thank_you';
         $this->load->view('includes/bootstrapped_template', $data);

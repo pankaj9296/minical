@@ -1087,6 +1087,25 @@ CREATE TABLE `extensions_x_vendor` (
 -- Table structure for table `extra`
 --
 
+DROP TABLE IF EXISTS `extensions_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `extensions_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `extension_name` varchar(100) NOT NULL,
+  `company_id` bigint(20) NOT NULL DEFAULT '0',
+  `vendor_id` bigint(20) NOT NULL DEFAULT '0',
+  `user_id` bigint(20) NOT NULL DEFAULT '0',
+  `status` varchar(50) NOT NULL,
+  `date_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `extra`
+--
+
 DROP TABLE IF EXISTS `extra`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -2413,6 +2432,10 @@ INSERT INTO `menu` (`id`, `name`, `link`, `icon`, `parent_id`, `partner_type_id`
 ALTER TABLE `whitelabel_partner` ADD `logo_image_group_id` BIGINT(20) NULL AFTER `auto_close_io`;
 
 ALTER TABLE `ota_manager` CHANGE `email` `email` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL, CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL;
+
+ALTER TABLE `ota_rate_plans` ADD `rate_update_type` VARCHAR(255) NOT NULL AFTER `ota_room_type_id`;
+
+ALTER TABLE `whitelabel_partner` ADD `overbooking_alert_email` VARCHAR(255) NOT NULL AFTER `logo_image_group_id`;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
